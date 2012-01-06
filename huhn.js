@@ -2,6 +2,36 @@
 function BYTE() {}
 function CHAR() {}
 function LONGINT() {}
+function REAL() {}
+
+const BLACK = 0;
+const WHITE = 15;
+
+function TEXTCOLOR(c) {}
+function TEXTBACKGROUND(c) {}
+function HIGHVIDEO() {}
+function GOTOXY(x, y) {}
+function CLREOL() {}
+function CLRSCR() {}
+function WRITE(s) {}
+function CURSOR_ON() {}
+function CURSOR_OFF() {}
+function READKEY() {}
+function KEYPRESSED() { return true; }
+
+function RANDOMIZE() {}
+
+function LENGTH(s) {
+    return s.length;
+}
+
+function RANDOM(a) {
+    if (typeof a == 'undefined') {
+        return Math.random();
+    } else {
+        return Math.floor(Math.random() * a);
+    }
+}
 
 var MAX_ENTRIES = 9;
 var ONE = 1;
@@ -35,7 +65,7 @@ function INVERSE_OFF() {
     };
 }
 
-function CENTERED(L) {
+function CENTERED(L, S) {
     GOTOXY(1, L);
     CLREOL();
     GOTOXY((80 - LENGTH(S)) / 2, L);
@@ -49,7 +79,7 @@ function READ_IN() {
     S = ST;
     WRITE(S);
     do {
-        C = READKEY;
+        C = READKEY();
         var accepted_keys = {};  // XXX
         if (accepted_keys[C] && (LENGTH(S) < 20)) {
             S = CONCAT(S, C);
@@ -60,7 +90,7 @@ function READ_IN() {
             WRITE(CHR(8), ' ', CHR(8));
         };
         if (C == CHR(0)) {
-            C = READKEY;
+            C = READKEY();
         };
     } while ((C != CHR(13)) && (C != CHR(27)));
     if (C == CHR(13)) {
@@ -128,11 +158,11 @@ function SHOW_HIGHSCORES() {
         do {
             COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
             I = I % 2000 + 1;
-        } while (!KEYPRESSED);
+        } while (!KEYPRESSED());
     };
-    C = READKEY;
+    C = READKEY();
     if (C == CHR(0)) {
-        C = READKEY;
+        C = READKEY();
     };
     LEVL = 0;
 }
@@ -165,7 +195,7 @@ function PUT_IN_HIGHSCORE(SCOR) {
         NEWHIGHSCORES[I].NAME = NAME;
         if (NAME != '') {
             HIGHSCORES = NEWHIGHSCORES;
-            CHANGED = TRUE;
+            CHANGED = true;
         };
         SHOW_HIGHSCORES();
     };
@@ -188,8 +218,8 @@ function LOAD_HIGHSCORES_AND_OPTIONS() {
         HIGHSCORES[0].NAME = 'Sheepmaster';
         HIGHSCORES[0].LVL = 55;
         HIGHSCORES[0].SCOR = 632650;
-        OPTIONS.COLOR = TRUE;
-        OPTIONS.BEEP = TRUE;
+        OPTIONS.COLOR = true;
+        OPTIONS.BEEP = true;
         OPTIONS.TEXT = LIGHTGREEN;
         OPTIONS.BACK = BLACK;
     } else {
@@ -240,69 +270,70 @@ function NEW_GAME() {
 
     function MAX(A, B) {
         if (A > B) {
-            MAX = A;
+            return A;
         } else {
-            MAX = B;
+            return B;
         };
     }
 
     function WAIT(MIL) {
-        var I, J = new Number();
-        var ST, MI, SE, HU = new WORD();
-        var TIME2 = new LONGINT();
-        for (I = 0; I <= FAC * MIL; I++) {
-            GETTIME(ST, MI, SE, HU);
-            TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
-            J++;
-        };
+        // var I, J = new Number();
+        // var ST, MI, SE, HU = new WORD();
+        // var TIME2 = new LONGINT();
+        // for (I = 0; I <= FAC * MIL; I++) {
+        //     GETTIME(ST, MI, SE, HU);
+        //     TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
+        //     J++;
+        // };
     }
 
     function CALIBRATE() {
-        var ST, MI, SE, HU = new WORD();
-        var TIME, TIME2, INT = new LONGINT();
-        INT = 0;
-        GETTIME(ST, MI, SE, HU);
-        TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
-        do {
-            GETTIME(ST, MI, SE, HU);
-            TIME = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
-        } while (!TIME2 != TIME);
-        do {
-            GETTIME(ST, MI, SE, HU);
-            TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
-            INT++;
-        } while (!(TIME2 >= TIME + PRESENT_DELAY) || (TIME2 < TIME));
-        FAC = INT / (PRESENT_DELAY * 10);
+        // var ST, MI, SE, HU = new WORD();
+        // var TIME, TIME2, INT = new LONGINT();
+        // INT = 0;
+        // GETTIME(ST, MI, SE, HU);
+        // TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
+        // do {
+        //     GETTIME(ST, MI, SE, HU);
+        //     TIME = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
+        // } while (!TIME2 != TIME);
+        // do {
+        //     GETTIME(ST, MI, SE, HU);
+        //     TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
+        //     INT++;
+        // } while (!(TIME2 >= TIME + PRESENT_DELAY) || (TIME2 < TIME));
+        // FAC = INT / (PRESENT_DELAY * 10);
     }
 
     function BEEP() {
-        SOUND(880);
-        WAIT(200);
-        NOSOUND();
+        // SOUND(880);
+        // WAIT(200);
+        // NOSOUND();
     }
 
     function RAND() {
         var I = new Number();
         var R, N = new REAL();
-        R = RANDOM * PROBSUM;
+        R = RANDOM() * PROBSUM;
         I = -1;
         N = 0;
         do {
-            N = N + PROBS[I];
+            N = N + PROBS[I + 1];
             I++;
-        } while (!(I == 21) || (N >= R));
-        if (I - 1 = OPTIONS.BACK) {
-            RAND = 0;
+        } while ((I != 21) && (N < R));
+        if (I - 1 == OPTIONS.BACK) {
+            return 0;
         } else {
-            RAND = I - 1;
+            return I - 1;
         };
     }
 
     function INIT() {
         var I, J = new Number();
-        for (I = LEFT; I <= RIGHT; I++) {
-            for (J = TOP; J <= BOTTOM; J++) {
-                TURBO_POWER[J][I] = FALSE
+        for (J = TOP; J <= BOTTOM; J++) {
+            TURBO_POWER[J-TOP] = new Array(RIGHT - LEFT);
+            for (I = LEFT; I <= RIGHT; I++) {
+                TURBO_POWER[J-TOP][I-LEFT] = false;
             }
         };
         CENTERED(1, 'Warum ging das Huhn ?ber die Autobahn?');
@@ -322,9 +353,11 @@ function NEW_GAME() {
         INVERSE_OFF();
         RANDOMIZE();
         for (I = 0; I <= MAX_AUTOS; I++) {
-            AUTOS[I].X = LEFT + RANDOM(RIGHT - LEFT);
-            AUTOS[I].Y = TOP + RANDOM(BOTTOM - TOP);
-            AUTOS[I].COLOR = RAND();
+            AUTOS[I] = {
+                X: LEFT + RANDOM(RIGHT - LEFT),
+                Y: TOP + RANDOM(BOTTOM - TOP),
+                COLOR: RAND()
+            }
             if (AUTOS[I].COLOR = OPTIONS.BACK) {
                 AUTOS[I].COLOR = BLACK;
             };
@@ -337,15 +370,15 @@ function NEW_GAME() {
         LEVL = 1;
         HUEHNER = 3;
         PRESENT_DELAY = START_DELAY;
-        GAME_OVER = FALSE;
-        RAINBOW = FALSE;
+        GAME_OVER = false;
+        RAINBOW = false;
         SCORE = 0;
         BONUS2 = START_BONUS;
     }
 
     function INIT2() {
         INVERSE_OFF();
-        START_AGAIN = FALSE;
+        START_AGAIN = false;
         HUHN.X = (RIGHT + LEFT) / 2;
         HUHN.Y = BOTTOM;
         BONUS = 200 * LEVL;
@@ -369,7 +402,7 @@ function NEW_GAME() {
         PRESENT_DELAY = ROUND(PRESENT_DELAY * SPEED_FACTOR);
         LEVL++;
         HUEHNER++;
-        START_AGAIN = TRUE;
+        START_AGAIN = true;
         SCORE = SCORE + BONUS + BONUS2;
         BONUS2 = START_BONUS;
         INVERSE_ON();
@@ -377,7 +410,7 @@ function NEW_GAME() {
             CENTERED(25, 'YOAHEEH!')
         } else {
             CENTERED(25, 'UI, BUNT!');
-            RAINBOW = TRUE;
+            RAINBOW = true;
         };
         GOTOXY(HUHN.X, HUHN.Y);
         INVERSE_OFF();
@@ -396,13 +429,13 @@ function NEW_GAME() {
         CENTERED(25, 'HAA HAA!');
         INVERSE_OFF();
         HUEHNER = HUEHNER - 1;
-        START_AGAIN = TRUE;
+        START_AGAIN = true;
         if (HUEHNER < 0) {
-            GAME_OVER = TRUE;
+            GAME_OVER = true;
         } else {
             CALIBRATE();
         };
-        while (KEYPRESSED) {
+        while (KEYPRESSED()) {
             CH = READKEY();
         };
     }
@@ -410,23 +443,23 @@ function NEW_GAME() {
     function VORWAERTS_MARSCH() {
         var I, P = new Number();
         var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
-        SPLAT = FALSE;
+        SPLAT = false;
         for (I = 0; I <= 5; I++) {
-            POWER_RANGERS_MEGA_ZORD_POWER[I] = FALSE
+            POWER_RANGERS_MEGA_ZORD_POWER[I] = false;
         };
         for (I = 0; I <= MAX_AUTOS; I++) {
             GOTOXY(AUTOS[I].X, AUTOS[I].Y);
             WRITE(' ');
-            TURBO_POWER[AUTOS[I].Y][AUTOS[I].X] = FALSE;
+            TURBO_POWER[AUTOS[I].Y-TOP][AUTOS[I].X-LEFT] = false;
             AUTOS[I].X = AUTOS[I].X - 1;
             if (AUTOS[I].X < LEFT) {
                 do {
                     P = RANDOM(6);
                 } while (POWER_RANGERS_MEGA_ZORD_POWER[P]);
-                POWER_RANGERS_MEGA_ZORD_POWER[P] = TRUE;
+                POWER_RANGERS_MEGA_ZORD_POWER[P] = true;
                 AUTOS[I].X = RIGHT - 1;
                 AUTOS[I].Y = BOTTOM - 1 - P;
-                AUTOS[I].COLOR = RAND;
+                AUTOS[I].COLOR = RAND();
                 if (AUTOS[I].COLOR = OPTIONS.BACK) {
                     AUTOS[I].COLOR = BLACK;
                 };
@@ -442,17 +475,17 @@ function NEW_GAME() {
                     TEXTCOLOR(RANDOM(16));
                 }
             };
-            TURBO_POWER[AUTOS[I].Y][AUTOS[I].X] = TRUE;
+            TURBO_POWER[AUTOS[I].Y-TOP][AUTOS[I].X-LEFT] = true;
             WRITE('*');
-            if ((HUHN.X = AUTOS[I].X) && (HUHN.Y = AUTOS[I].Y)) {
-                SPLAT = TRUE;
+            if ((HUHN.X == AUTOS[I].X) && (HUHN.Y == AUTOS[I].Y)) {
+                SPLAT = true;
             };
-            if (KEY) {
-                while (KEYPRESSED) {
-                    CH = READKEY;
-                }
-            };
-            KEY = FALSE;
+            // if (KEY) {
+            //     while (KEYPRESSED()) {
+            //         CH = READKEY();
+            //     }
+            // };
+            // KEY = false;
         };
         if (SPLAT) {
             TOT();
@@ -488,12 +521,12 @@ function NEW_GAME() {
             WAIT(PRESENT_DELAY);
             GOTOXY(HUHN.X, HUHN.Y);
             WRITE(' ');
-            if (KEYPRESSED) {
-                KEY = TRUE;
-                CH = READKEY;
+            if (KEYPRESSED()) {
+                KEY = true;
+                CH = READKEY();
                 switch (CH) {
                 case '\0':
-                    CH = READKEY;
+                    CH = READKEY();
                     switch (CH) {
                     case 'K':
                         HUHN.X--;
@@ -513,7 +546,7 @@ function NEW_GAME() {
                 case ' ':
                     INVERSE_ON();
                     CENTERED(25, '***PAUSE***');
-                    CH = READKEY;
+                    CH = READKEY();
                     GOTOXY(21, 25);
                     WRITE('Warum ging das Huhn ?ber die Autobahn?');
                     INVERSE_OFF();
@@ -523,11 +556,11 @@ function NEW_GAME() {
                     INVERSE_ON();
                     CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
                     do {
-                        C = READKEY;
+                        C = READKEY();
                     } while (!C in ['J', 'j', 'N', 'n', CHR(27), CHR(13)]);
                     if (C in ['J', 'j', CHR(13)]) {
-                        START_AGAIN = TRUE;
-                        GAME_OVER = TRUE;
+                        START_AGAIN = true;
+                        GAME_OVER = true;
                     };
                     CENTERED(25, 'Warum ging das Huhn ?ber die Autobahn?');
                     INVERSE_OFF();
@@ -593,10 +626,10 @@ function INFO() {
     do {
         COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
         I = (I - 997) % 4 + 998;
-    } while (!KEYPRESSED);
-    C = READKEY;
+    } while (!KEYPRESSED());
+    C = READKEY();
     if (C = CHR(0)) {
-        C = READKEY
+        C = READKEY();
     };
 }
 
@@ -631,9 +664,9 @@ function EASTER_EGG() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr?cken ***');
     INVERSE_OFF();
-    C = READKEY;
+    C = READKEY();
     if (C = CHR(0)) {
-        C = READKEY
+        C = READKEY()
     };
 }
 
@@ -795,22 +828,22 @@ function SETUP_OPTIONS() {
         GOTOXY(28, 20);
         WRITE('ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼');
         for (I = 0; I <= 5; I++) {
-            WRITE_MENU(I)
+            WRITE_MENU(I);
         };
         INVERSE_ON();
         WRITE_MENU(POS);
         INVERSE_OFF();
         WRITE_TEXT();
         do {
-            C = READKEY;
+            C = READKEY();
             WRITE_MENU(POS);
             if (C = CHR(0)) {
-                C = READKEY;
+                C = READKEY();
                 if (C = 'P') {
-                    POS = (POS + 1) % 6
+                    POS = (POS + 1) % 6;
                 };
                 if (C = 'H') {
-                    POS = (POS + 5) % 6
+                    POS = (POS + 5) % 6;
                 };
             };
             INVERSE_ON();
@@ -818,29 +851,29 @@ function SETUP_OPTIONS() {
             INVERSE_OFF();
         } while (!(C = CHR(13)) || (C = CHR(27)));
         if (C = CHR(27)) {
-            POS = 5
+            POS = 5;
         };
         switch (POS) {
         case 0:
-            SWITCH_COLOR()
+            SWITCH_COLOR();
             break;
         case 1:
-            SWITCH_BEEP()
+            SWITCH_BEEP();
             break;
         case 2:
-            CYCLE_TEXT()
+            CYCLE_TEXT();
             break;
         case 3:
-            CYCLE_BACK()
+            CYCLE_BACK();
             break;
         case 4:
-            OUT = TRUE
+            OUT = true;
             break;
         };
     } while (!OUT);
     if (POS = 4) {
         OPTIONS = NEW_OPTIONS;
-        CHANGED = TRUE;
+        CHANGED = true;
     };
 }
 
@@ -879,12 +912,12 @@ function WRITE_MENU(P) {
     };
 }
 function main() {
-  OLD_MODE = LASTMODE;
+  OLD_MODE = LASTMODE();
   COLOR = COLOR_SCREEN;
   CURSOR_OFF();
-  CHECKBREAK = FALSE;
-  OUT = FALSE;
-  CHANGED = FALSE;
+  CHECKBREAK = false;
+  OUT = false;
+  CHANGED = false;
   POS = 0;
   LEVL = 0;
   LOAD_HIGHSCORES_AND_OPTIONS();
@@ -919,24 +952,24 @@ function main() {
       WRITE_MENU(POS);
       INVERSE_OFF();
       do {
-          C = READKEY;
+          C = READKEY();
           WRITE_MENU(POS);
-          if (C = CHR(0)) {
+          if (C == CHR(0)) {
               WRITE('!');
-              C = READKEY;
-              if (C = 'P') {
-                  POS = (POS + 1) % 5
+              C = READKEY();
+              if (C == 'P') {
+                  POS = (POS + 1) % 5;
               };
-              if (C = 'H') {
-                  POS = (POS + 4) % 5
+              if (C == 'H') {
+                  POS = (POS + 4) % 5;
               };
           };
           INVERSE_ON();
           WRITE_MENU(POS);
           INVERSE_OFF();
-      } while (!(C = CHR(13)) || (C = CHR(27)) || (C = CHR(10)));
+      } while (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10)));
       if (C = CHR(27)) {
-          OUT = TRUE;
+          OUT = true;
       } else {
           switch (POS) {
           case 0:
@@ -956,7 +989,7 @@ function main() {
               SETUP_OPTIONS();
               break;
           case 4:
-              OUT = TRUE;
+              OUT = true;
               break;
           }
       };
@@ -969,7 +1002,7 @@ function main() {
   };
   WRITE('Danke, daá Sie \'Warum ging das Huhn ?ber die Autobahn\' so lange ertragen haben!');
   CURSOR_ON();
-  CHECKBREAK = TRUE;
+  CHECKBREAK = true;
   TEXTMODE(OLD_MODE);
   WRITE('Danke, daá Sie \'Warum ging das Huhn ?ber die Autobahn\' so lange ertragen haben!');
 }
