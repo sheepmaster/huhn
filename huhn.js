@@ -275,7 +275,9 @@ function NEW_GAME() {
     };
   }
 
-  function WAIT(MIL) {
+  function WAIT(MIL, callback) {
+    if (callback)
+      window.setTimeout(callback, MIL);
     // var I, J = new Number();
     // var ST, MI, SE, HU = new WORD();
     // var TIME2 = new LONGINT();
@@ -286,7 +288,9 @@ function NEW_GAME() {
     // };
   }
 
-  function CALIBRATE() {
+  function CALIBRATE(callback) {
+    if (callback)
+      window.setTimeout(callback, PRESENT_DELAY * 10);
     // var ST, MI, SE, HU = new WORD();
     // var TIME, TIME2, INT = new LONGINT();
     // INT = 0;
@@ -396,7 +400,7 @@ function NEW_GAME() {
     WRITE(BONUS);
   }
 
-  function GESCHAFFT() {
+  function GESCHAFFT(callback) {
     var I = new Number();
     PRESENT_DELAY = ROUND(PRESENT_DELAY * SPEED_FACTOR);
     LEVL++;
@@ -414,13 +418,15 @@ function NEW_GAME() {
     GOTOXY(HUHN.X, HUHN.Y);
     INVERSE_OFF();
     WRITE('#');
-    CALIBRATE();
-    WRITE(CHR(8), ' ');
-    HUHN.X = (RIGHT + LEFT) / 2;
-    HUHN.Y = BOTTOM;
+    CALIBRATE(function() {
+      WRITE(CHR(8), ' ');
+      HUHN.X = (RIGHT + LEFT) / 2;
+      HUHN.Y = BOTTOM;
+      callback();
+    });
   }
 
-  function TOT() {
+  function TOT(callback) {
     if (OPTIONS.BEEP) {
       BEEP();
     };
@@ -432,14 +438,19 @@ function NEW_GAME() {
     if (HUEHNER < 0) {
       GAME_OVER = true;
     } else {
-      CALIBRATE();
+      CALIBRATE(cont);
+      return;
     };
-    while (KEYPRESSED()) {
-      READKEY(function(CH) {});
-    };
+    cont();
+    function cont() {
+      while (KEYPRESSED()) {
+        READKEY(function(CH) {});
+      };
+      callback();
+    }
   }
 
-  function VORWAERTS_MARSCH() {
+  function VORWAERTS_MARSCH(callback) {
     var I, P = new Number();
     var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
     SPLAT = false;
@@ -487,33 +498,48 @@ function NEW_GAME() {
       KEY = false;
     };
     if (SPLAT) {
-      TOT();
+      TOT(callback);
+      return;
     };
+    callback();
   }
 
-  function HAEMISCH_LACHEN() {
-    var I = new Number();
+  function HAEMISCH_LACHEN(callback) {
+    var I;
     if (OPTIONS.COLOR && COLOR) {
       TEXTCOLOR(4);
     };
-    for (I = 500; I >= 0; I--) {
-      GOTOXY(RANDOM(71) + 1, RANDOM(24) + 1);
-      WAIT(I / 50 + 3);
-      WRITE('GAME OVER!');
-    };
-    WAIT(500);
-    INVERSE_OFF();
+    I = 500;
+    loop();
+    function loop() {
+      if (I >= 0) {
+        GOTOXY(RANDOM(71) + 1, RANDOM(24) + 1);
+        WAIT(I / 50 + 3, function() {
+          WRITE('GAME OVER!');
+          I--;
+          loop();
+        });
+        return;
+      }
+      WAIT(500, function() {
+        INVERSE_OFF();
+        callback();
+      });
+    }
   }
+
   INVERSE_ON();
   CENTERED(25, '                               Bitte warten...                                 ');
   PRESENT_DELAY = START_DELAY;
   FAC = 500;
-  CALIBRATE();
-  GOTOXY(47, 25);
-  WRITE('OK.');
-  INVERSE_OFF();
-  CLRSCR();
-  INIT();
+  CALIBRATE(function() {
+    GOTOXY(47, 25);
+    WRITE('OK.');
+    INVERSE_OFF();
+    CLRSCR();
+    INIT();
+    start_level();
+  });
 
   function start_level() {
     INIT2();
@@ -521,7 +547,7 @@ function NEW_GAME() {
   }
 
   function step() {
-    window.setTimeout(function() {
+    WAIT(PRESENT_DELAY, function() {
       GOTOXY(HUHN.X, HUHN.Y);
       WRITE(' ');
       if (KEYPRESSED()) {
@@ -561,6 +587,7 @@ function NEW_GAME() {
             INVERSE_ON();
             CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
 
+            confirm();
             function confirm() {
               READKEY(function(C) {
                 var keys = {
@@ -573,7 +600,9 @@ function NEW_GAME() {
                 };
                 if (typeof keys[C] == 'undefined') {
                   confirm();
-                } else if (keys[C]) {
+                  return;
+                }
+                if (keys[C]) {
                   START_AGAIN = true;
                   GAME_OVER = true;
                 }
@@ -582,7 +611,6 @@ function NEW_GAME() {
                 update();
               });
             }
-            confirm();
             break;
           default:
             update();
@@ -591,41 +619,47 @@ function NEW_GAME() {
         return;
       }
       update();
-    }, PRESENT_DELAY);
+      function update() {
+        if (HUHN.X < LEFT) {
+          HUHN.X++;
+        };
+        if (HUHN.X >= RIGHT) {
+          HUHN.X--;
+        };
+        if (HUHN.Y > BOTTOM) {
+          HUHN.Y--;
+        };
+        if (HUHN.Y < TOP) {
+          GESCHAFFT(cont);
+          return;
+        };
+        cont();
+        function cont() {
+          GOTOXY(HUHN.X, HUHN.Y);
+          INVERSE_OFF();
+          WRITE('#');
+          VORWAERTS_MARSCH(function() {
+            INVERSE_OFF();
+            BONUS2 = MAX(BONUS2 - REDUCTION, 0);
+            GOTOXY(RIGHT - 4, BOTTOM + 3);
+            WRITE(BONUS2, '     ');
+            if (!START_AGAIN) {
+              step();
+              return;
+            }
+            if (!GAME_OVER) {
+              start_level();
+              return;
+            }
+            HAEMISCH_LACHEN(function() {
+              // CLRSCR();
+              // PUT_IN_HIGHSCORE(SCORE, LEVL);
+            });
+          });
+        }
+      }
+    });
   }
-
-  function update() {
-    if (HUHN.X < LEFT) {
-      HUHN.X++;
-    };
-    if (HUHN.X >= RIGHT) {
-      HUHN.X--;
-    };
-    if (HUHN.Y > BOTTOM) {
-      HUHN.Y--;
-    };
-    if (HUHN.Y < TOP) {
-      GESCHAFFT()
-    };
-    GOTOXY(HUHN.X, HUHN.Y);
-    INVERSE_OFF();
-    WRITE('#');
-    VORWAERTS_MARSCH();
-    INVERSE_OFF();
-    BONUS2 = MAX(BONUS2 - REDUCTION, 0);
-    GOTOXY(RIGHT - 4, BOTTOM + 3);
-    WRITE(BONUS2, '     ');
-    if (!START_AGAIN) {
-      step();
-    } else if (!GAME_OVER) {
-      start_level();
-    } else {
-      HAEMISCH_LACHEN();
-      CLRSCR();
-      PUT_IN_HIGHSCORE(SCORE, LEVL);
-    }
-  }
-  start_level();
 }
 
 function INFO() {
