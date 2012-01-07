@@ -10,6 +10,10 @@ const WHITE = 15;
 function CHR(c) {
     return String.fromCharCode(c);
 }
+function ROUND(x) {
+    return Math.round(x);
+}
+
 function TEXTCOLOR(c) {}
 function TEXTBACKGROUND(c) {}
 function HIGHVIDEO() {}
@@ -17,7 +21,6 @@ function CLREOL() {}
 function CLRSCR() {}
 function CURSOR_ON() {}
 function CURSOR_OFF() {}
-function READKEY() {}
 
 function RANDOMIZE() {}
 
@@ -436,7 +439,7 @@ function NEW_GAME() {
             CALIBRATE();
         };
         while (KEYPRESSED()) {
-            CH = READKEY();
+            READKEY(function(CH) {});
         };
     }
 
@@ -527,51 +530,74 @@ function NEW_GAME() {
         WRITE(' ');
         if (KEYPRESSED()) {
             KEY = true;
-            CH = READKEY();
-            switch (CH) {
-            case '\0':
-                CH = READKEY();
+            READKEY(function(CH) {
                 switch (CH) {
-                case 'K':
-                    HUHN.X--;
-                    break;
-                case 'P':
-                    HUHN.Y++;
-                    break;
-                case 'M':
-                    HUHN.X++;
-                    break;
-                case 'H':
-                    HUHN.Y--;
-                    break;
-                };
-        
-                break;
-            case ' ':
-                INVERSE_ON();
-                CENTERED(25, '***PAUSE***');
-                CH = READKEY();
-                GOTOXY(21, 25);
-                WRITE('Warum ging das Huhn über die Autobahn?');
-                INVERSE_OFF();
-        
-                break;
-            case '\x19':
-                INVERSE_ON();
-                CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
-                do {
-                    C = READKEY();
-                } while (!C in ['J', 'j', 'N', 'n', CHR(27), CHR(13)]);
-                if (C in ['J', 'j', CHR(13)]) {
-                    START_AGAIN = true;
-                    GAME_OVER = true;
-                };
-                CENTERED(25, 'Warum ging das Huhn über die Autobahn?');
-                INVERSE_OFF();
-        
-                break;
-            };
-        };
+                    case '\0':
+                        READKEY(function(CH) {
+                            switch (CH) {
+                                case 'K':
+                                    HUHN.X--;
+                                    break;
+                                case 'P':
+                                    HUHN.Y++;
+                                    break;
+                                case 'M':
+                                    HUHN.X++;
+                                    break;
+                                case 'H':
+                                    HUHN.Y--;
+                                    break;
+                            }
+                            update();
+                        });
+                        break;
+                    case ' ':
+                        INVERSE_ON();
+                        CENTERED(25, '***PAUSE***');
+                        READKEY(function(CH) {
+                            GOTOXY(21, 25);
+                            WRITE('Warum ging das Huhn über die Autobahn?');
+                            INVERSE_OFF();
+                            update();
+                        });
+                        break;
+                    case '\x19':  // #27
+                        INVERSE_ON();
+                        CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
+                        function confirm() {
+                            READKEY(function(C) {
+                                var keys = {
+                                    'J': true,
+                                    'j': true,
+                                    'N': false,
+                                    'n': false,
+                                    '\x19': false,  // CHR(27)
+                                    '\x0D': true,  // CHR(13)
+                                };
+                                if (typeof keys[c] == 'undefined') {
+                                    confirm();
+                                    return;
+                                }
+                                if (keys[c]) {
+                                    START_AGAIN = true;
+                                    GAME_OVER = true;
+                                }
+                                CENTERED(25, 'Warum ging das Huhn über die Autobahn?');
+                                INVERSE_OFF();
+                                update();
+                            });
+                        }
+                        confirm();
+                        break;
+                    default:
+                        update();
+                }
+            });
+            return;
+        }
+        update();
+    }
+    function update() {
         if (HUHN.X < LEFT) {
             HUHN.X++;
         };

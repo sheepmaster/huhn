@@ -9,45 +9,69 @@ function extend(subClass, baseClass) {
 };
 
 function Terminal() {
-  this.keyBuffer = '';
+  this.keyBuffer_ = [];
   this.superClass.constructor.call(this);
 }
 extend(Terminal, VT100);
 Terminal.prototype.keysPressed = function(ch) {
   var s;
-  if (ch == '\u001B[D') {
-    s = '\0K';  // left
-  } else if (ch == '\u001B[A') {
-    s = '\0H';  // up
-  } else if (ch == '\u001B[C') {
-    s = '\0M';  // right
-  } else if (ch == '\u001B[B') {
-    s = '\0P';  // down
-  } else {
-    s = ch;
+  switch(ch) {
+    case '\u001B[D':
+        s = '\0K';  // left
+        break;
+    case '\u001B[A':
+        s = '\0H';  // up
+        break;
+    case '\u001B[C':
+        s = '\0M';  // right
+        break;
+    case '\u001B[B':
+        s = '\0P';  // down
+        break;
+    default:
+        s = ch;
   }
   for (var i = 0; i < s.length; i++) {
-    if (this.pendingCallback) {
-      this.pendingCallback.call(s.charAt(i));
-      delete this.pendingCallback;
+    var c = s.charAt(i);
+    var callback = this.pendingCallback_;
+    if (callback) {
+      delete this.pendingCallback_;
+      callback(c);
     } else {
-      this.keyBuffer = this.keyBuffer + s;
+      this.keyBuffer_.push(c);
     }
   }
+};
+
+Terminal.prototype.keyPressed = function() {
+  return terminal.keyBuffer_.length > 0;
+};
+
+Terminal.prototype.readKey = function(f) {
+  if (this.keyBuffer_.length > 0) {
+    f(this.keyBuffer_.shift());
+  } else {
+    this.pendingCallback_ = f;
+  }
+}
+Terminal.prototype.write = function() {
+  this.vt100(Array.prototype.join.call(arguments, ''));
 }
 
+var WRITE;
 function init() {
-    terminal = new Terminal();
+  terminal = new Terminal();
+  WRITE = terminal.write.bind(terminal);
 }
 
 function GOTOXY(x, y) {
-    terminal.gotoXY(x, y);
-}
-
-function WRITE() {
-    terminal.vt100(Array.prototype.join.call(arguments, ''));
+  terminal.gotoXY(x, y);
 }
 
 function KEYPRESSED() {
-  return terminal.keyBuffer.length > 0;
+  return terminal.keyPressed();
+}
+
+function READKEY(f) {
+  return terminal.readKey(f);
 }
