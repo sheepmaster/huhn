@@ -78,7 +78,7 @@ function crtInit() {
 }
 
 function GOTOXY(x, y) {
-  terminal.gotoXY(x, y);
+  terminal.gotoXY(x - 1, y - 1);
 }
 
 function WRITE() {
