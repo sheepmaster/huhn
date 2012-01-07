@@ -561,7 +561,7 @@ function NEW_GAME() {
               update();
             });
             break;
-          case '\x19':  // #27
+          case '\x1B':  // #27
             INVERSE_ON();
             CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
 
@@ -572,14 +572,12 @@ function NEW_GAME() {
                   'j': true,
                   'N': false,
                   'n': false,
-                  '\x19': false,  // CHR(27)
+                  '\x1B': false,  // CHR(27)
                   '\x0D': true,  // CHR(13)
                 };
-                if (typeof keys[c] == 'undefined') {
+                if (typeof keys[C] == 'undefined') {
                   confirm();
-                  return;
-                }
-                if (keys[c]) {
+                } else if (keys[C]) {
                   START_AGAIN = true;
                   GAME_OVER = true;
                 }

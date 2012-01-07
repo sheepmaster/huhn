@@ -31,37 +31,47 @@ Terminal.prototype.keysPressed = function(ch) {
     default:
         s = ch;
   }
-  for (var i = 0; i < s.length; i++) {
-    var c = s.charAt(i);
-    var callback = this.pendingCallback_;
+  console.log('\'' + s.join('\', \'') + '\'');
+  var that = this;
+  s.forEach(function(key) {
+    var callback = that.pendingCallback_;
     if (callback) {
-      delete this.pendingCallback_;
-      callback(c);
+      if (that.keyBuffer_.length > 0) {
+        throw new Error('key buffer should be empty if we have a pending callback');
+      }
+      delete that.pendingCallback_;
+      window.setTimeout(function() {
+          callback(key);
+      }, 0);
     } else {
-      this.keyBuffer_.push(c);
+      that.keyBuffer_.push(key);
     }
-  }
+  });
+  return false;
 };
 
-Terminal.prototype.keyPressed = function() {
+Terminal.prototype.crtKeyPressed = function() {
   return terminal.keyBuffer_.length > 0;
 };
 
-Terminal.prototype.readKey = function(f) {
+Terminal.prototype.crtReadKey = function(callback) {
   if (this.keyBuffer_.length > 0) {
-    f(this.keyBuffer_.shift());
+    var key = this.keyBuffer_.shift();
+    window.setTimeout(function() {
+        callback(key);
+    }, 0);
   } else {
-    this.pendingCallback_ = f;
+    this.pendingCallback_ = callback;
   }
 }
-Terminal.prototype.write = function() {
+Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
 }
 
 var WRITE;
 function init() {
   terminal = new Terminal();
-  WRITE = terminal.write.bind(terminal);
+  WRITE = terminal.crtWrite.bind(terminal);
 }
 
 function GOTOXY(x, y) {
@@ -69,9 +79,9 @@ function GOTOXY(x, y) {
 }
 
 function KEYPRESSED() {
-  return terminal.keyPressed();
+  return terminal.crtKeyPressed();
 }
 
 function READKEY(f) {
-  return terminal.readKey(f);
+  return terminal.crtReadKey(f);
 }
