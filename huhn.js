@@ -17,8 +17,6 @@ function ROUND(x) {
 function TEXTCOLOR(c) {}
 function TEXTBACKGROUND(c) {}
 function HIGHVIDEO() {}
-function CLREOL() {}
-function CLRSCR() {}
 
 function RANDOMIZE() {}
 

@@ -60,10 +60,17 @@ Terminal.prototype.crtReadKey = function(callback) {
   } else {
     this.pendingCallback_ = callback;
   }
-}
+};
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
-}
+};
+Terminal.prototype.crtClrEol = function() {
+  this.clearRegion(this.cursorX, this.cursorY,
+                   this.terminalWidth - this.cursorX, 1, this.style);
+};
+Terminal.prototype.crtClrScr = function() {
+  this.clearRegion(0, 0, this.terminalWidth, this.terminalHeight,this.style);
+};
 
 var WRITE;
 function crtInit() {
@@ -90,4 +97,11 @@ function CURSOR_ON() {
 
 function CURSOR_OFF() {
   terminal.hideCursor();
+}
+
+function CLREOL() {
+  terminal.crtClrEol();
+}
+function CLRSCR() {
+  terminal.crtClrScr();
 }
