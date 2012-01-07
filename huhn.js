@@ -7,6 +7,9 @@ function REAL() {}
 const BLACK = 0;
 const WHITE = 15;
 
+function CHR(c) {
+    return String.fromCharCode(c);
+}
 function TEXTCOLOR(c) {}
 function TEXTBACKGROUND(c) {}
 function HIGHVIDEO() {}
@@ -15,7 +18,6 @@ function CLRSCR() {}
 function CURSOR_ON() {}
 function CURSOR_OFF() {}
 function READKEY() {}
-function KEYPRESSED() { return true; }
 
 function RANDOMIZE() {}
 
