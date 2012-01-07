@@ -513,84 +513,94 @@ function NEW_GAME() {
     INVERSE_OFF();
     CLRSCR();
     INIT();
-    do {
+    function start_level() {
         INIT2();
-        do {
-            WAIT(PRESENT_DELAY);
-            GOTOXY(HUHN.X, HUHN.Y);
-            WRITE(' ');
-            if (KEYPRESSED()) {
-                KEY = true;
+        step();
+    }
+    function step() {
+        window.setTimeout(step_cont, PRESENT_DELAY);
+    }
+    function step_cont() {
+        GOTOXY(HUHN.X, HUHN.Y);
+        WRITE(' ');
+        if (KEYPRESSED()) {
+            KEY = true;
+            CH = READKEY();
+            switch (CH) {
+            case '\0':
                 CH = READKEY();
                 switch (CH) {
-                case '\0':
-                    CH = READKEY();
-                    switch (CH) {
-                    case 'K':
-                        HUHN.X--;
-                        break;
-                    case 'P':
-                        HUHN.Y++;
-                        break;
-                    case 'M':
-                        HUHN.X++;
-                        break;
-                    case 'H':
-                        HUHN.Y--;
-                        break;
-                    };
-
+                case 'K':
+                    HUHN.X--;
                     break;
-                case ' ':
-                    INVERSE_ON();
-                    CENTERED(25, '***PAUSE***');
-                    CH = READKEY();
-                    GOTOXY(21, 25);
-                    WRITE('Warum ging das Huhn ?ber die Autobahn?');
-                    INVERSE_OFF();
-
+                case 'P':
+                    HUHN.Y++;
                     break;
-                case '\x19':
-                    INVERSE_ON();
-                    CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
-                    do {
-                        C = READKEY();
-                    } while (!C in ['J', 'j', 'N', 'n', CHR(27), CHR(13)]);
-                    if (C in ['J', 'j', CHR(13)]) {
-                        START_AGAIN = true;
-                        GAME_OVER = true;
-                    };
-                    CENTERED(25, 'Warum ging das Huhn ?ber die Autobahn?');
-                    INVERSE_OFF();
-
+                case 'M':
+                    HUHN.X++;
+                    break;
+                case 'H':
+                    HUHN.Y--;
                     break;
                 };
+        
+                break;
+            case ' ':
+                INVERSE_ON();
+                CENTERED(25, '***PAUSE***');
+                CH = READKEY();
+                GOTOXY(21, 25);
+                WRITE('Warum ging das Huhn ?ber die Autobahn?');
+                INVERSE_OFF();
+        
+                break;
+            case '\x19':
+                INVERSE_ON();
+                CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
+                do {
+                    C = READKEY();
+                } while (!C in ['J', 'j', 'N', 'n', CHR(27), CHR(13)]);
+                if (C in ['J', 'j', CHR(13)]) {
+                    START_AGAIN = true;
+                    GAME_OVER = true;
+                };
+                CENTERED(25, 'Warum ging das Huhn ?ber die Autobahn?');
+                INVERSE_OFF();
+        
+                break;
             };
-            if (HUHN.X < LEFT) {
-                HUHN.X++;
-            };
-            if (HUHN.X >= RIGHT) {
-                HUHN.X--;
-            };
-            if (HUHN.Y > BOTTOM) {
-                HUHN.Y--;
-            };
-            if (HUHN.Y < TOP) {
-                GESCHAFFT()
-            };
-            GOTOXY(HUHN.X, HUHN.Y);
-            INVERSE_OFF();
-            WRITE('#');
-            VORWAERTS_MARSCH();
-            INVERSE_OFF();
-            BONUS2 = MAX(BONUS2 - REDUCTION, 0);
-            GOTOXY(RIGHT - 4, BOTTOM + 3);
-            WRITE(BONUS2, '     ');
-        } while (!START_AGAIN);
-    } while (!GAME_OVER);
-    HAEMISCH_LACHEN();
-    CLRSCR();
-    PUT_IN_HIGHSCORE(SCORE, LEVL);
+        };
+        if (HUHN.X < LEFT) {
+            HUHN.X++;
+        };
+        if (HUHN.X >= RIGHT) {
+            HUHN.X--;
+        };
+        if (HUHN.Y > BOTTOM) {
+            HUHN.Y--;
+        };
+        if (HUHN.Y < TOP) {
+            GESCHAFFT()
+        };
+        GOTOXY(HUHN.X, HUHN.Y);
+        INVERSE_OFF();
+        WRITE('#');
+        VORWAERTS_MARSCH();
+        INVERSE_OFF();
+        BONUS2 = MAX(BONUS2 - REDUCTION, 0);
+        GOTOXY(RIGHT - 4, BOTTOM + 3);
+        WRITE(BONUS2, '     ');
+        if (!START_AGAIN) {
+            step();
+        } else if (!GAME_OVER) {
+            start_level();
+        } else {
+            HAEMISCH_LACHEN();
+            CLRSCR();
+            PUT_IN_HIGHSCORE(SCORE, LEVL);
+        }
+    }
+    start_level();
 }
 
 function INFO() {
