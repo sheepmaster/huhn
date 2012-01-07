@@ -10,10 +10,8 @@ const WHITE = 15;
 function TEXTCOLOR(c) {}
 function TEXTBACKGROUND(c) {}
 function HIGHVIDEO() {}
-function GOTOXY(x, y) {}
 function CLREOL() {}
 function CLRSCR() {}
-function WRITE(s) {}
 function CURSOR_ON() {}
 function CURSOR_OFF() {}
 function READKEY() {}
