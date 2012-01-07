@@ -7,6 +7,6 @@ function GOTOXY(x, y) {
     terminal.gotoXY(x, y);
 }
 
-function WRITE(s) {
-    terminal.vt100(s);
+function WRITE() {
+    terminal.vt100(Array.prototype.join.call(arguments, ''));
 }
