@@ -73,6 +73,7 @@ Terminal.prototype.crtClrScr = function() {
 };
 
 function crtInit() {
+  suppressAllAudio = true;
   terminal = new Terminal();
   terminal.enableAlternateScreen();
 }
