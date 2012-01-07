@@ -72,15 +72,17 @@ Terminal.prototype.crtClrScr = function() {
   this.clearRegion(0, 0, this.terminalWidth, this.terminalHeight,this.style);
 };
 
-var WRITE;
 function crtInit() {
   terminal = new Terminal();
   terminal.enableAlternateScreen();
-  WRITE = terminal.crtWrite.bind(terminal);
 }
 
 function GOTOXY(x, y) {
   terminal.gotoXY(x, y);
+}
+
+function WRITE() {
+  terminal.crtWrite.apply(terminal, arguments);
 }
 
 function KEYPRESSED() {
