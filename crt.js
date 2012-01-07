@@ -27,8 +27,8 @@ Terminal.prototype.keysPressed = function(s) {
     case '\u001B[B':
         s = '\0P';  // down
         break;
-  }
-  console.log('\'' + s + '\'');
+    }
+  // console.log('\'' + s + '\'');
   var that = this;
   s.split('').forEach(function(key) {
     var callback = that.pendingCallback_;
