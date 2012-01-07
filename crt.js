@@ -13,9 +13,8 @@ function Terminal() {
   this.superClass.constructor.call(this);
 }
 extend(Terminal, VT100);
-Terminal.prototype.keysPressed = function(ch) {
-  var s;
-  switch(ch) {
+Terminal.prototype.keysPressed = function(s) {
+  switch(s) {
     case '\u001B[D':
         s = '\0K';  // left
         break;
@@ -28,12 +27,10 @@ Terminal.prototype.keysPressed = function(ch) {
     case '\u001B[B':
         s = '\0P';  // down
         break;
-    default:
-        s = ch;
   }
-  console.log('\'' + s.join('\', \'') + '\'');
+  console.log('\'' + s + '\'');
   var that = this;
-  s.forEach(function(key) {
+  s.split('').forEach(function(key) {
     var callback = that.pendingCallback_;
     if (callback) {
       if (that.keyBuffer_.length > 0) {
@@ -69,8 +66,9 @@ Terminal.prototype.crtWrite = function() {
 }
 
 var WRITE;
-function init() {
+function crtInit() {
   terminal = new Terminal();
+  terminal.enableAlternateScreen();
   WRITE = terminal.crtWrite.bind(terminal);
 }
 
@@ -84,4 +82,12 @@ function KEYPRESSED() {
 
 function READKEY(f) {
   return terminal.crtReadKey(f);
+}
+
+function CURSOR_ON() {
+  terminal.showCursor();
+}
+
+function CURSOR_OFF() {
+  terminal.hideCursor();
 }

@@ -19,8 +19,6 @@ function TEXTBACKGROUND(c) {}
 function HIGHVIDEO() {}
 function CLREOL() {}
 function CLRSCR() {}
-function CURSOR_ON() {}
-function CURSOR_OFF() {}
 
 function RANDOMIZE() {}
 
@@ -332,7 +330,7 @@ function NEW_GAME() {
   }
 
   function INIT() {
-    var I, J = new Number();
+    var I, J;
     for (J = TOP; J <= BOTTOM; J++) {
       TURBO_POWER[J - TOP] = new Array(RIGHT - LEFT);
       for (I = LEFT; I <= RIGHT; I++) {
@@ -483,12 +481,12 @@ function NEW_GAME() {
       if ((HUHN.X == AUTOS[I].X) && (HUHN.Y == AUTOS[I].Y)) {
         SPLAT = true;
       };
-      // if (KEY) {
-      //     while (KEYPRESSED()) {
-      //         CH = READKEY();
-      //     }
-      // };
-      // KEY = false;
+      if (KEY) {
+        while (KEYPRESSED()) {
+          READKEY(function(CH) {});
+        }
+      };
+      KEY = false;
     };
     if (SPLAT) {
       TOT();
@@ -950,6 +948,10 @@ function WRITE_MENU(P) {
 }
 
 function main() {
+  CURSOR_OFF();
+  NEW_GAME();
+}
+function main_tmp() {
   OLD_MODE = LASTMODE();
   COLOR = COLOR_SCREEN;
   CURSOR_OFF();

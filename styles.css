@@ -18,8 +18,7 @@
 }
 
 #vt100 #scrollable {
-  overflow-x:       hidden;
-  overflow-y:       scroll;
+  overflow:         hidden;
   position:         relative;
   padding:          1px;
 }

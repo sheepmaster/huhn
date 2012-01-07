@@ -3,16 +3,19 @@
 <link rel="stylesheet" href="styles.css" type="text/css">
 <style>
 #vt100 {
-/*  height:500px;
-  width:1000px;
+  height:450px;
+  width:800px;
   position: absolute;
-*/}
-</style>
+}
+/*#vt100 .scrollback {
+    display: none;
+  }
+*/</style>
 <script src="vt100.js"></script>
 <script src="crt.js"></script>
 <script src="huhn.js"></script>
 </head>
-<body onload="init(); NEW_GAME()" scroll="no">
+<body onload="crtInit(); main()" scroll="no">
   <div id="vt100" />
 </body>
 </html>
