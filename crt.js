@@ -9,8 +9,9 @@ function extend(subClass, baseClass) {
 };
 
 function Terminal() {
-  this.keyBuffer_ = [];
   this.superClass.constructor.call(this);
+  this.utfEnabled = false;
+  this.keyBuffer_ = [];
 }
 extend(Terminal, VT100);
 Terminal.prototype.keysPressed = function(s) {
