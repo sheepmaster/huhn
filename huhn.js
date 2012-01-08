@@ -1,10 +1,6 @@
 /* PROGRAM NAME: TOETE_DAS_HUHN_UND_SPEISE_ES_MIT_EINER_SAFTIGEN_SOSSE */
-function BYTE() {}
-function CHAR() {}
-function LONGINT() {}
-function REAL() {}
-
 const BLACK = 0;
+const LIGHTGRAY = 7;
 const LIGHTGREEN = 10;
 const WHITE = 15;
 
@@ -235,7 +231,7 @@ function SHOW_HIGHSCORES(callback) {
   });
 }
 
-function PUT_IN_HIGHSCORE(SCOR, LVL) {
+function PUT_IN_HIGHSCORE(SCOR, LVL, callback) {
   var I, J;
   var NAME;
   var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -265,12 +261,10 @@ function PUT_IN_HIGHSCORE(SCOR, LVL) {
         update(HIGHSCORES, NEWHIGHSCORES);
         CHANGED = true;
       }
-      SHOW_HIGHSCORES(function() {
-      });
+      SHOW_HIGHSCORES(callback);
     });
   } else {
-    SHOW_HIGHSCORES(function() {
-    });
+    callback();
   }
 }
 
@@ -319,7 +313,7 @@ function SAVE_HIGHSCORES_AND_OPTIONS() {
   }
 }
 
-function NEW_GAME() {
+function NEW_GAME(callback) {
   const MAX_AUTOS = 30;
   const START_DELAY = 110;
   const SPEED_FACTOR = .977;
@@ -625,15 +619,15 @@ function NEW_GAME() {
     INVERSE_OFF();
     CLRSCR();
     INIT();
-    start_level();
+    start_level(callback);
   });
 
-  function start_level() {
+  function start_level(callback) {
     INIT2();
-    step();
+    step(callback);
   }
 
-  function step() {
+  function step(callback) {
     WAIT(PRESENT_DELAY, function() {
       GOTOXY(HUHN.X, HUHN.Y);
       WRITE(' ');
@@ -731,16 +725,16 @@ function NEW_GAME() {
             GOTOXY(RIGHT - 4, BOTTOM + 3);
             WRITE(BONUS2, '     ');
             if (!START_AGAIN) {
-              step();
+              step(callback);
               return;
             }
             if (!GAME_OVER) {
-              start_level();
+              start_level(callback);
               return;
             }
             HAEMISCH_LACHEN(function() {
               CLRSCR();
-              PUT_IN_HIGHSCORE(SCORE, LEVL);
+              PUT_IN_HIGHSCORE(SCORE, LEVL, callback);
             });
           });
         }
@@ -834,9 +828,9 @@ function EASTER_EGG(callback) {
   });
 }
 
-function SETUP_OPTIONS() {
-  var I, POS = new Number();
-  var OUT = new Boolean();
+function SETUP_OPTIONS(callback) {
+  var I, POS;
+  var OUT;
   var NEW_OPTIONS = new OPTION_TYPE();
 
   function WRITE_MENU(P) {
@@ -956,8 +950,9 @@ function SETUP_OPTIONS() {
     };
   }
   POS = 0;
-  NEW_OPTIONS = OPTIONS;
-  do {
+  update(NEW_OPTIONS, OPTIONS);
+  loop();
+  function loop() {
     CLRSCR();
     GOTOXY(33, 5);
     WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
@@ -998,47 +993,72 @@ function SETUP_OPTIONS() {
     WRITE_MENU(POS);
     INVERSE_OFF();
     WRITE_TEXT();
-    do {
-      C = READKEY();
-      WRITE_MENU(POS);
-      if (C == CHR(0)) {
-        C = READKEY();
-        if (C == 'P') {
-          POS = (POS + 1) % 6;
+    inner_loop();
+    function inner_loop() {
+      READKEY(function(c) {
+        C = c;
+        WRITE_MENU(POS);
+        if (C == CHR(0)) {
+          READKEY(function(C) {
+            if (C == 'P') {
+              POS = (POS + 1) % 6;
+            };
+            if (C == 'H') {
+              POS = (POS + 5) % 6;
+            };
+            cont();
+          });
+          return;
         };
-        if (C == 'H') {
-          POS = (POS + 5) % 6;
-        };
+        cont();
+        function cont() {
+          INVERSE_ON();
+          WRITE_MENU(POS);
+          INVERSE_OFF();
+          if (!(C == CHR(13) || C == CHR(27))) {
+            inner_loop();
+          } else {
+            inner_cont();
+          }
+        }
+      });
+    }
+    function inner_cont() {
+      if (C == CHR(27)) {
+        POS = 5;
       };
-      INVERSE_ON();
-      WRITE_MENU(POS);
-      INVERSE_OFF();
-    } while (!(C = CHR(13)) || (C = CHR(27)));
-    if (C == CHR(27)) {
-      POS = 5;
+      switch (POS) {
+      case 0:
+        SWITCH_COLOR();
+        break;
+      case 1:
+        SWITCH_BEEP();
+        break;
+      case 2:
+        CYCLE_TEXT();
+        break;
+      case 3:
+        CYCLE_BACK();
+        break;
+      case 4:
+      case 5:
+        OUT = true;
+        break;
+      };
+      if (!OUT) {
+        loop();
+      } else {
+        outer_cont();
+      }
+    }
+  }
+  function outer_cont() {
+    if (POS == 4) {
+      update(OPTIONS, NEW_OPTIONS);
+      CHANGED = true;
     };
-    switch (POS) {
-    case 0:
-      SWITCH_COLOR();
-      break;
-    case 1:
-      SWITCH_BEEP();
-      break;
-    case 2:
-      CYCLE_TEXT();
-      break;
-    case 3:
-      CYCLE_BACK();
-      break;
-    case 4:
-      OUT = true;
-      break;
-    };
-  } while (!OUT);
-  if (POS == 4) {
-    OPTIONS = NEW_OPTIONS;
-    CHANGED = true;
-  };
+    callback();
+  }
 }
 
 function WRITE_MENU(P) {
@@ -1076,13 +1096,16 @@ function WRITE_MENU(P) {
   };
 }
 
-function main() {
+function main_tmp() {
   COLOR = true;
   CURSOR_OFF();
   LOAD_HIGHSCORES_AND_OPTIONS();
-  NEW_GAME();
+  NEW_GAME(function() {});
 }
-function main_tmp() {
+function LASTMODE() {}
+const COLOR_SCREEN = true;
+
+function main() {
   OLD_MODE = LASTMODE();
   COLOR = COLOR_SCREEN;
   CURSOR_OFF();
@@ -1094,8 +1117,8 @@ function main_tmp() {
   LOAD_HIGHSCORES_AND_OPTIONS();
   INVERSE_OFF();
   CLRSCR();
-  INFO();
-  do {
+  INFO(loop);
+  function loop() {
     INVERSE_OFF();
     CLRSCR();
     GOTOXY(33, 7);
@@ -1117,63 +1140,89 @@ function main_tmp() {
     GOTOXY(30, 15);
     WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
     for (I = 0; I <= 4; I++) {
-      WRITE_MENU(I)
-    };
+      WRITE_MENU(I);
+    }
     INVERSE_ON();
     WRITE_MENU(POS);
     INVERSE_OFF();
-    do {
-      C = READKEY();
-      WRITE_MENU(POS);
-      if (C == CHR(0)) {
-        WRITE('!');
-        C = READKEY();
-        if (C == 'P') {
-          POS = (POS + 1) % 5;
-        };
-        if (C == 'H') {
-          POS = (POS + 4) % 5;
-        };
-      };
-      INVERSE_ON();
-      WRITE_MENU(POS);
-      INVERSE_OFF();
-    } while (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10)));
-    if (C == CHR(27)) {
-      OUT = true;
-    } else {
-      switch (POS) {
-      case 0:
-        if (C != CHR(10)) {
-          INFO();
-        } else {
-          EASTER_EGG();
+    inner_loop();
+    function inner_loop() {
+      READKEY(function(c) {
+        C = c;
+        WRITE_MENU(POS);
+        if (C == CHR(0)) {
+          WRITE('!');
+          READKEY(function(C) {
+            if (C == 'P') {
+              POS = (POS + 1) % 5;
+            }
+            if (C == 'H') {
+              POS = (POS + 4) % 5;
+            }
+            cont();
+          });
+          return;
         }
-        break;
-      case 1:
-        NEW_GAME();
-        break;
-      case 2:
-        SHOW_HIGHSCORES();
-        break;
-      case 3:
-        SETUP_OPTIONS();
-        break;
-      case 4:
+        cont();
+        function cont() {
+          INVERSE_ON();
+          WRITE_MENU(POS);
+          INVERSE_OFF();
+          if (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10))) {
+            inner_loop();
+          } else {
+            inner_cont();
+          }
+        }
+      });
+    }
+    function inner_cont() {
+      if (C == CHR(27)) {
         OUT = true;
-        break;
+      } else {
+        switch (POS) {
+        case 0:
+          if (C != CHR(10)) {
+            INFO(cont);
+          } else {
+            EASTER_EGG(cont);
+          }
+          return;
+        case 1:
+          NEW_GAME(cont);
+          return;
+        case 2:
+          SHOW_HIGHSCORES(cont);
+          return;
+        case 3:
+          SETUP_OPTIONS(cont);
+          return;
+        case 4:
+          OUT = true;
+          break;
+        }
       }
-    };
-  } while (!OUT);
-  TEXTCOLOR(LIGHTGRAY);
-  TEXTBACKGROUND(BLACK);
-  CLRSCR();
-  if (CHANGED) {
-    SAVE_HIGHSCORES_AND_OPTIONS()
-  };
-  WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
-  CURSOR_ON();
-  CHECKBREAK = true;
-  TEXTMODE(OLD_MODE);
-  WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
+      cont();
+      function cont() {
+        if (!OUT) {
+          loop();
+        } else {
+          outer_cont();
+        }
+      }
+    }
+  }
+  function outer_cont() {
+    TEXTCOLOR(LIGHTGRAY);
+    TEXTBACKGROUND(BLACK);
+    CLRSCR();
+    if (CHANGED) {
+      SAVE_HIGHSCORES_AND_OPTIONS();
+    }
+    WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
+    CURSOR_ON();
+    // CHECKBREAK = true;
+    // TEXTMODE(OLD_MODE);
+    // WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
+  }
 }

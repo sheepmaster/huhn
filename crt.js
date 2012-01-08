@@ -83,12 +83,16 @@ Terminal.prototype.crtReadKey = function(callback) {
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
 };
+Terminal.prototype.crtWriteLn = function() {
+  this.vt100(Array.prototype.join.call(arguments, '') + '\n');
+};
 Terminal.prototype.crtClrEol = function() {
   this.clearRegion(this.cursorX, this.cursorY,
                    this.terminalWidth - this.cursorX, 1, this.style);
 };
 Terminal.prototype.crtClrScr = function() {
   this.clearRegion(0, 0, this.terminalWidth, this.terminalHeight,this.style);
+  this.gotoXY(0, 0);
 };
 
 Terminal.prototype.crtTextColor = function(c) {
@@ -120,6 +124,10 @@ function GOTOXY(x, y) {
 
 function WRITE() {
   terminal.crtWrite.apply(terminal, arguments);
+}
+
+function WRITELN() {
+  terminal.crtWriteLn.apply(terminal, arguments);
 }
 
 function KEYPRESSED() {
