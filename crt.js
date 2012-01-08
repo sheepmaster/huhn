@@ -14,6 +14,21 @@ function Terminal() {
   this.keyBuffer_ = [];
 }
 extend(Terminal, VT100);
+Terminal.prototype.keyDown = function(e) {
+  if (e.metaKey)
+    return true;
+  return this.superClass.keyDown.call(this, e);
+}
+Terminal.prototype.keyUp = function(e) {
+  if (e.metaKey)
+    return true;
+  return this.superClass.keyUp.call(this, e);
+};
+Terminal.prototype.keyPressed = function(e) {
+  if (e.metaKey)
+    return true;
+  return this.superClass.keyPressed.call(this, e);
+};
 Terminal.prototype.keysPressed = function(s) {
   switch(s) {
     case '\u001B[D':
