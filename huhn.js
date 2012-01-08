@@ -50,7 +50,7 @@ function ENTRY_TYPE() {
 ENTRY_TYPE.prototype = {
   NAME: null,
   LVL: null,
-  SCOR: null,
+  SCOR: null
 };
 function HIGHSCORE_TYPE() {
   for (var i = 0; i <= MAX_ENTRIES; i++) {
@@ -64,7 +64,7 @@ OPTION_TYPE.prototype = {
   TEXT: null,
   BACK: null,
   BEEP: null,
-  COLOR: null,
+  COLOR: null
 };
 function OPTIONS_TYPE() {
   this.OPTIONS = new OPTION_TYPE();
@@ -212,12 +212,12 @@ function SHOW_HIGHSCORES(callback) {
   SAVE_HIGHSCORES_AND_OPTIONS();
   INVERSE_OFF();
   I = 1;
-  if (LEVL >= 35) {
-    // do {
-    //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
-    //   I = I % 2000 + 1;
-    // } while (!KEYPRESSED());
-  }
+  // if (LEVL >= 35) {
+  //   do {
+  //     COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
+  //     I = I % 2000 + 1;
+  //   } while (!KEYPRESSED());
+  // }
   READKEY(function(C) {
     if (C == CHR(0)) {
       READKEY(function(C) {
@@ -328,7 +328,7 @@ function NEW_GAME() {
   COORD.prototype = {
     X: null,
     Y: null,
-    COLOR: null,
+    COLOR: null
   };
   function AUTO_TYP() {
     for (var i = 0; i <= MAX_AUTOS; i++) {
@@ -438,7 +438,7 @@ function NEW_GAME() {
       update(AUTOS[I], {
         X: LEFT + RANDOM(RIGHT - LEFT),
         Y: TOP + RANDOM(BOTTOM - TOP),
-        COLOR: RAND(),
+        COLOR: RAND()
       });
       if (AUTOS[I].COLOR == OPTIONS.BACK) {
         AUTOS[I].COLOR = BLACK;
@@ -675,7 +675,7 @@ function NEW_GAME() {
                   'N': false,
                   'n': false,
                   '\x1B': false,  // CHR(27)
-                  '\x0D': true,  // CHR(13)
+                  '\x0D': true  // CHR(13)
                 };
                 if (typeof keys[C] == 'undefined') {
                   confirm();
