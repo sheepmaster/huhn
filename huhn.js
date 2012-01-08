@@ -29,16 +29,46 @@ function RANDOM(a) {
   }
 }
 
-var MAX_ENTRIES = 9;
-var ONE = 1;
-var ENTRY_TYPE = Object;
-var HIGHSCORE_TYPE = Array;
-var OPTION_TYPE = Object;
-var OPTIONS_TYPE = Object;
-var I, POS, LEVL = new Number();
-var OLD_MODE = new BYTE();
-var C = new CHAR();
-var OUT, CHANGED, COLOR = new Boolean();
+function update(o, properties) {
+  for (var key in properties) {
+    if (properties.hasOwnProperty(key)) {
+      o[key] = properties[key];
+    }
+  }
+}
+
+const MAX_ENTRIES = 9;
+const ONE = 1;
+function ENTRY_TYPE() {
+}
+ENTRY_TYPE.prototype = {
+  NAME: null,
+  LVL: null,
+  SCOR: null,
+};
+function HIGHSCORE_TYPE() {
+  for (var i = 0; i <= MAX_ENTRIES; i++) {
+    this.push(new ENTRY_TYPE());
+  }
+}
+HIGHSCORE_TYPE.prototype = new Array();
+function OPTION_TYPE() {
+}
+OPTION_TYPE.prototype = {
+  TEXT: null,
+  BACK: null,
+  BEEP: null,
+  COLOR: null,
+};
+function OPTIONS_TYPE() {
+  this.OPTIONS = new OPTION_TYPE();
+  this.HIGHSCORES = new HIGHSCORE_TYPE();
+}
+var I, POS, LEVL;
+var OLD_MODE;
+var C;
+var OUT, CHANGED;
+var COLOR;
 var HIGHSCORES = new HIGHSCORE_TYPE();
 var OPTIONS = new OPTION_TYPE();
 
@@ -198,13 +228,14 @@ function PUT_IN_HIGHSCORE(SCOR) {
 }
 
 function LOAD_HIGHSCORES_AND_OPTIONS() {
-    var HI_FILE_TYPE = function() {};
-  var F = new HI_FILE_TYPE();
+  // var HI_FILE_TYPE = function() {};
+  // var F = new HI_FILE_TYPE();
   var RED = new OPTIONS_TYPE();
-  ASSIGN(F, 'HUHN.HI');
-  RESET(F);
-  READ(F, RED);
-  CLOSE(F);
+  // ASSIGN(F, 'HUHN.HI');
+  // RESET(F);
+  // READ(F, RED);
+  // CLOSE(F);
+  var IORESULT = 1;
   if (IORESULT != 0) {
     for (I = 1; I <= MAX_ENTRIES; I++) {
       HIGHSCORES[I].NAME = 'Anonymous';
@@ -219,13 +250,13 @@ function LOAD_HIGHSCORES_AND_OPTIONS() {
     OPTIONS.TEXT = LIGHTGREEN;
     OPTIONS.BACK = BLACK;
   } else {
-    HIGHSCORES = RED.HIGHSCORES;
-    OPTIONS = RED.OPTIONS;
+    update(HIGHSCORES, RED.HIGHSCORES);
+    update(OPTIONS, RED.OPTIONS);
   };
 }
 
 function SAVE_HIGHSCORES_AND_OPTIONS() {
-    var HI_FILE_TYPE = function() {};
+  var HI_FILE_TYPE = function() {};
   var R = new WORD();
   var F = new HI_FILE_TYPE();
   var WRITTEN = new OPTIONS_TYPE();
@@ -243,26 +274,40 @@ function SAVE_HIGHSCORES_AND_OPTIONS() {
 }
 
 function NEW_GAME() {
-  var MAX_AUTOS = 30;
-  var START_DELAY = 110;
-  var SPEED_FACTOR = .977;
-  var TOP = 10;
-  var BOTTOM = 16;
-  var LEFT = 24;
-  var RIGHT = 56;
-  var START_BONUS = 10000;
-  var REDUCTION = 50;
-  var PROBS = new Array(.01, .0, 7.5, 2.5, 1.0, 9.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 1.0, 1.0, 2.5, 2.5, 7.5, .0, .0, .0, .0, .001);
-  var PROBSUM = 42.011;
-  var COORD = Object;
-  var AUTO_TYP = Array;
-  var START_AGAIN, GAME_OVER, RAINBOW, SPLAT, KEY = new Boolean();
-  var I, HUEHNER, PRESENT_DELAY, BONUS, BONUS2, WAIT_DELAY, FAC = new Number();
-  var SCORE = new LONGINT();
-  var CH = new CHAR();
+  const MAX_AUTOS = 30;
+  const START_DELAY = 110;
+  const SPEED_FACTOR = .977;
+  const TOP = 10;
+  const BOTTOM = 16;
+  const LEFT = 24;
+  const RIGHT = 56;
+  const START_BONUS = 10000;
+  const REDUCTION = 50;
+  const PROBS = [.01, .0, 7.5, 2.5, 1.0, 9.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 1.0, 1.0, 2.5, 2.5, 7.5, .0, .0, .0, .0, .001];
+  const PROBSUM = 42.011;
+  function COORD() {
+  }
+  COORD.prototype = {
+    X: null,
+    Y: null,
+    COLOR: null,
+  };
+  function AUTO_TYP() {
+    for (var i = 0; i <= MAX_AUTOS; i++) {
+      this.push(new COORD());
+    }
+  }
+  AUTO_TYP.prototype = new Array();
+  var START_AGAIN, GAME_OVER, RAINBOW, SPLAT, KEY;
+  var I, HUEHNER, PRESENT_DELAY, BONUS, BONUS2, WAIT_DELAY, FAC;
+  var SCORE;
+  var CH;
   var HUHN = new COORD();
   var AUTOS = new AUTO_TYP();
-  var TURBO_POWER = new Array();
+  var TURBO_POWER = [];
+  for (var i = TOP; i <= BOTTOM; i++) {
+    TURBO_POWER.push(new Array(RIGHT - LEFT + 1));
+  }
 
   function MAX(A, B) {
     if (A > B) {
@@ -312,8 +357,8 @@ function NEW_GAME() {
   }
 
   function RAND() {
-    var I = new Number();
-    var R, N = new REAL();
+    var I;
+    var R, N;
     R = RANDOM() * PROBSUM;
     I = -1;
     N = 0;
@@ -331,7 +376,6 @@ function NEW_GAME() {
   function INIT() {
     var I, J;
     for (J = TOP; J <= BOTTOM; J++) {
-      TURBO_POWER[J - TOP] = new Array(RIGHT - LEFT);
       for (I = LEFT; I <= RIGHT; I++) {
         TURBO_POWER[J - TOP][I - LEFT] = false;
       }
@@ -353,12 +397,12 @@ function NEW_GAME() {
     INVERSE_OFF();
     RANDOMIZE();
     for (I = 0; I <= MAX_AUTOS; I++) {
-      AUTOS[I] = {
+      update(AUTOS[I], {
         X: LEFT + RANDOM(RIGHT - LEFT),
         Y: TOP + RANDOM(BOTTOM - TOP),
-        COLOR: RAND()
-      }
-      if (AUTOS[I].COLOR = OPTIONS.BACK) {
+        COLOR: RAND(),
+      });
+      if (AUTOS[I].COLOR == OPTIONS.BACK) {
         AUTOS[I].COLOR = BLACK;
       };
       GOTOXY(AUTOS[I].X, AUTOS[I].Y);
@@ -467,7 +511,7 @@ function NEW_GAME() {
         AUTOS[I].X = RIGHT - 1;
         AUTOS[I].Y = BOTTOM - 1 - P;
         AUTOS[I].COLOR = RAND();
-        if (AUTOS[I].COLOR = OPTIONS.BACK) {
+        if (AUTOS[I].COLOR == OPTIONS.BACK) {
           AUTOS[I].COLOR = BLACK;
         };
         if (RAINBOW) {
@@ -692,7 +736,7 @@ function INFO() {
     I = (I - 997) % 4 + 998;
   } while (!KEYPRESSED());
   C = READKEY();
-  if (C = CHR(0)) {
+  if (C == CHR(0)) {
     C = READKEY();
   };
 }
@@ -729,7 +773,7 @@ function EASTER_EGG() {
   CENTERED(25, '*** Bitte Taste drücken ***');
   INVERSE_OFF();
   C = READKEY();
-  if (C = CHR(0)) {
+  if (C == CHR(0)) {
     C = READKEY()
   };
 }
@@ -744,7 +788,7 @@ function SETUP_OPTIONS() {
     case 0:
       GOTOXY(30, 9);
       if (!COLOR) {
-        LOWVIDEO()
+        LOWVIDEO();
       };
       WRITE(' [ ] Bunte Autos    ');
       GOTOXY(32, 9);
@@ -768,7 +812,7 @@ function SETUP_OPTIONS() {
     case 2:
       GOTOXY(30, 16);
       if (!COLOR) {
-        LOWVIDEO()
+        LOWVIDEO();
       };
       WRITE(' Textfarbe..        ');
       CENTERED(25, 'Schaltet die Textfarbe um (Siehe Farb-Beispiel)');
@@ -778,7 +822,7 @@ function SETUP_OPTIONS() {
     case 3:
       GOTOXY(30, 17);
       if (!COLOR) {
-        LOWVIDEO()
+        LOWVIDEO();
       };
       WRITE(' Hintergrundfarbe.. ');
       CENTERED(25, 'Schaltet die Hintergrundfarbe um (Siehe Farb-Beispiel)');
@@ -901,12 +945,12 @@ function SETUP_OPTIONS() {
     do {
       C = READKEY();
       WRITE_MENU(POS);
-      if (C = CHR(0)) {
+      if (C == CHR(0)) {
         C = READKEY();
-        if (C = 'P') {
+        if (C == 'P') {
           POS = (POS + 1) % 6;
         };
-        if (C = 'H') {
+        if (C == 'H') {
           POS = (POS + 5) % 6;
         };
       };
@@ -914,7 +958,7 @@ function SETUP_OPTIONS() {
       WRITE_MENU(POS);
       INVERSE_OFF();
     } while (!(C = CHR(13)) || (C = CHR(27)));
-    if (C = CHR(27)) {
+    if (C == CHR(27)) {
       POS = 5;
     };
     switch (POS) {
@@ -935,7 +979,7 @@ function SETUP_OPTIONS() {
       break;
     };
   } while (!OUT);
-  if (POS = 4) {
+  if (POS == 4) {
     OPTIONS = NEW_OPTIONS;
     CHANGED = true;
   };
@@ -977,7 +1021,9 @@ function WRITE_MENU(P) {
 }
 
 function main() {
+  COLOR = true;
   CURSOR_OFF();
+  LOAD_HIGHSCORES_AND_OPTIONS();
   NEW_GAME();
 }
 function main_tmp() {
@@ -1037,7 +1083,7 @@ function main_tmp() {
       WRITE_MENU(POS);
       INVERSE_OFF();
     } while (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10)));
-    if (C = CHR(27)) {
+    if (C == CHR(27)) {
       OUT = true;
     } else {
       switch (POS) {
