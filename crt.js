@@ -1,30 +1,28 @@
 var terminal;
 
 function Future() {
-  this.continuations_ = [];
-  this.results_ = [];
 }
 Future.prototype.fulfill = function() {
-  var continuation = this.continuations_.shift();
-  if (continuation) {
+  if (this.isFulfilled())
+    throw new Error('Future is already fulfilled');
+  this.result_ = Array.prototype.slice.apply(arguments);
+  var continuation = this.continuation_;
+  if (continuation)
     continuation.apply(null, arguments);
-  } else {
-    this.results_.push(Array.prototype.slice.apply(arguments));
-  }
 };
 Future.prototype.then = function(f) {
-  var args = this.results_.shift();
-  if (args) {
+  if (this.isBound())
+    throw new Error('Future is already bound');
+  this.continuation_ = f;
+  var args = this.result_;
+  if (args)
     f.apply(null, args);
-  } else {
-    this.continuations_.push(f);
-  }
 };
-Future.prototype.isQueued = function() {
-  return (this.results_.length > 0);
+Future.prototype.isFulfilled = function() {
+  return (typeof this.result_ != 'undefined');
 };
-Future.prototype.isBlocked = function() {
-  return (this.continuations_.length > 0);
+Future.prototype.isBound = function() {
+  return (typeof this.continuation_ != 'undefined');
 }
 
 function extend(subClass, baseClass) {
@@ -38,7 +36,8 @@ function extend(subClass, baseClass) {
 function Terminal() {
   this.superClass.constructor.call(this);
   this.utfEnabled = false;
-  this.keyBuffer_ = new Future();
+  this.fulfilledFutures_ = [];
+  this.unfulfilledFutures_ = [];
 }
 extend(Terminal, VT100);
 Terminal.prototype.keyDown = function(e) {
@@ -76,14 +75,26 @@ Terminal.prototype.keysPressed = function(s) {
     }
   // console.log('\'' + s + '\'');
   var that = this;
-  s.split('').forEach(this.keyBuffer_.fulfill.bind(this.keyBuffer_));
+  function pushFulfilledFuture(f) {
+    that.fulfilledFutures_.push(f);
+    return f;
+  }
+  s.split('').forEach(function(key) {
+    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture(new Future());
+    f.fulfill(key);
+  });
   return false;
 };
 Terminal.prototype.crtKeyPressed = function() {
-  return this.keyBuffer_.isQueued();
+  return this.fulfilledFutures_.length > 0;
 };
-Terminal.prototype.crtReadKey = function(callback) {
-  this.keyBuffer_.then(callback);
+Terminal.prototype.crtReadKey = function() {
+  var that = this;
+  function pushUnfulfilledFuture(f) {
+    that.unfulfilledFutures_.push(f);
+    return f;
+  }
+  return this.fulfilledFutures_.shift() || pushUnfulfilledFuture(new Future());
 };
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
@@ -139,8 +150,8 @@ function KEYPRESSED() {
   return terminal.crtKeyPressed();
 }
 
-function READKEY(f) {
-  return terminal.crtReadKey(f);
+function READKEY() {
+  return terminal.crtReadKey();
 }
 
 function CURSOR_ON() {

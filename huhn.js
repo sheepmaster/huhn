@@ -116,7 +116,7 @@ var main = (function() {
     WRITE(S);
     loop();
     function loop() {
-      READKEY(function(c) {
+      READKEY().then(function(c) {
         C = c;
         var accepted_keys = {};
         var start = (' ').charCodeAt(0);
@@ -136,9 +136,9 @@ var main = (function() {
           WRITE(CHR(8), ' ', CHR(8));
         };
         if (C == CHR(0)) {
-          READKEY(function(c) {
+          READKEY().then(function(c) {
             C = c;
-            cont()
+            cont();
           });
           return;
         };
@@ -223,9 +223,9 @@ var main = (function() {
     //     I = I % 2000 + 1;
     //   } while (!KEYPRESSED());
     // }
-    READKEY(function(C) {
+    READKEY().then(function(C) {
       if (C == CHR(0)) {
-        READKEY(function(C) {
+        READKEY().then(function(C) {
           LEVL = 0;
           callback();
         });
@@ -529,7 +529,7 @@ var main = (function() {
       cont();
       function cont() {
         while (KEYPRESSED()) {
-          READKEY(function(CH) {});
+          READKEY();
         }
         callback();
       }
@@ -577,7 +577,7 @@ var main = (function() {
         }
         if (KEY) {
           while (KEYPRESSED()) {
-            READKEY(function(CH) {});
+            READKEY();
           }
         }
         KEY = false;
@@ -637,10 +637,10 @@ var main = (function() {
         WRITE(' ');
         if (KEYPRESSED()) {
           KEY = true;
-          READKEY(function(CH) {
+          READKEY().then(function(CH) {
             switch (CH) {
             case '\0':
-              READKEY(function(CH) {
+              READKEY().then(function(CH) {
                 switch (CH) {
                 case 'K':
                   HUHN.X--;
@@ -661,7 +661,7 @@ var main = (function() {
             case ' ':
               INVERSE_ON();
               CENTERED(25, '***PAUSE***');
-              READKEY(function(CH) {
+              READKEY().then(function(CH) {
                 GOTOXY(21, 25);
                 WRITE('Warum ging das Huhn \u00FCber die Autobahn?');
                 INVERSE_OFF();
@@ -673,7 +673,7 @@ var main = (function() {
               CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
 
               function loop() {
-                READKEY(function(C) {
+                READKEY().then(function(C) {
                   var keys = {
                     'J': true,
                     'j': true,
@@ -779,11 +779,9 @@ var main = (function() {
     //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
     //   I = (I - 997) % 4 + 998;
     // } while (!KEYPRESSED());
-    READKEY(function(C) {
+    READKEY().then(function(C) {
       if (C == CHR(0)) {
-        READKEY(function(C) {
-          callback();
-        });
+        READKEY().then(callback);
         return;
       }
       callback();
@@ -821,11 +819,9 @@ var main = (function() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
-    READKEY(function(C) {
+    READKEY().then(function(C) {
       if (C == CHR(0)) {
-        READKEY(function(C) {
-          callback();
-        });
+        READKEY().then(callback);
         return;
       }
       callback();
@@ -999,11 +995,11 @@ var main = (function() {
       WRITE_TEXT();
       inner_loop();
       function inner_loop() {
-        READKEY(function(c) {
+        READKEY().then(function(c) {
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
-            READKEY(function(C) {
+            READKEY().then(function(C) {
               if (C == 'P') {
                 POS = (POS + 1) % 6;
               };
@@ -1142,12 +1138,12 @@ var main = (function() {
       INVERSE_OFF();
       inner_loop();
       function inner_loop() {
-        READKEY(function(c) {
+        READKEY().then(function(c) {
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
             WRITE('!');
-            READKEY(function(C) {
+            READKEY().then(function(C) {
               if (C == 'P') {
                 POS = (POS + 1) % 5;
               }
