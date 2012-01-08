@@ -209,6 +209,7 @@ function SHOW_HIGHSCORES(callback) {
   WRITE_HIGHSCORES(HIGHSCORES);
   INVERSE_ON();
   // CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+  CENTERED(25, '');
   SAVE_HIGHSCORES_AND_OPTIONS();
   INVERSE_OFF();
   I = 1;
@@ -262,6 +263,9 @@ function PUT_IN_HIGHSCORE(SCOR, LVL) {
       }
       SHOW_HIGHSCORES(function() {
       });
+    });
+  } else {
+    SHOW_HIGHSCORES(function() {
     });
   }
 }
