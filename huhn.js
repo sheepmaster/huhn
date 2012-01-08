@@ -38,7 +38,11 @@ function RANDOM(a) {
 function update(o, properties) {
   for (var key in properties) {
     if (properties.hasOwnProperty(key)) {
-      o[key] = properties[key];
+      if (typeof properties[key] == 'object') {
+        update(o[key], properties[key]);
+      } else {
+        o[key] = properties[key];
+      }
     }
   }
 }
