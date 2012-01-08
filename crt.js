@@ -1,5 +1,32 @@
 var terminal;
 
+function Future() {
+  this.continuations_ = [];
+  this.results_ = [];
+}
+Future.prototype.fulfill = function() {
+  var continuation = this.continuations_.shift();
+  if (continuation) {
+    continuation.apply(null, arguments);
+  } else {
+    this.results_.push(Array.prototype.slice.apply(arguments));
+  }
+};
+Future.prototype.then = function(f) {
+  var args = this.results_.shift();
+  if (args) {
+    f.apply(null, args);
+  } else {
+    this.continuations_.push(f);
+  }
+};
+Future.prototype.isQueued = function() {
+  return (this.results_.length > 0);
+};
+Future.prototype.isBlocked = function() {
+  return (this.continuations_.length > 0);
+}
+
 function extend(subClass, baseClass) {
   function inheritance() { }
   inheritance.prototype          = baseClass.prototype;
@@ -11,7 +38,7 @@ function extend(subClass, baseClass) {
 function Terminal() {
   this.superClass.constructor.call(this);
   this.utfEnabled = false;
-  this.keyBuffer_ = [];
+  this.keyBuffer_ = new Future();
 }
 extend(Terminal, VT100);
 Terminal.prototype.keyDown = function(e) {
@@ -49,36 +76,14 @@ Terminal.prototype.keysPressed = function(s) {
     }
   // console.log('\'' + s + '\'');
   var that = this;
-  s.split('').forEach(function(key) {
-    var callback = that.pendingCallback_;
-    if (callback) {
-      if (that.keyBuffer_.length > 0) {
-        throw new Error('key buffer should be empty if we have a pending callback');
-      }
-      delete that.pendingCallback_;
-      window.setTimeout(function() {
-          callback(key);
-      }, 0);
-    } else {
-      that.keyBuffer_.push(key);
-    }
-  });
+  s.split('').forEach(this.keyBuffer_.fulfill.bind(this.keyBuffer_));
   return false;
 };
-
 Terminal.prototype.crtKeyPressed = function() {
-  return terminal.keyBuffer_.length > 0;
+  return this.keyBuffer_.isQueued();
 };
-
 Terminal.prototype.crtReadKey = function(callback) {
-  if (this.keyBuffer_.length > 0) {
-    var key = this.keyBuffer_.shift();
-    window.setTimeout(function() {
-        callback(key);
-    }, 0);
-  } else {
-    this.pendingCallback_ = callback;
-  }
+  this.keyBuffer_.then(callback);
 };
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
