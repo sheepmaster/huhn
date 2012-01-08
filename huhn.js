@@ -361,9 +361,10 @@ var main = (function() {
       }
     }
 
-    function WAIT(MIL, callback) {
-      if (callback)
-        window.setTimeout(callback, MIL);
+    function WAIT(MIL) {
+      var f = new Future();
+      window.setTimeout(f.fulfill.bind(f), MIL);
+      return f;
       // var I, J = new Number();
       // var ST, MI, SE, HU = new WORD();
       // var TIME2 = new LONGINT();
@@ -599,14 +600,14 @@ var main = (function() {
       function loop() {
         if (I >= 0) {
           GOTOXY(RANDOM(71) + 1, RANDOM(24) + 1);
-          WAIT(I / 50 + 3, function() {
+          WAIT(I / 50 + 3).then(function() {
             WRITE('GAME OVER!');
             I--;
             loop();
           });
           return;
         }
-        WAIT(500, function() {
+        WAIT(500).then(function() {
           INVERSE_OFF();
           callback();
         });
@@ -632,7 +633,7 @@ var main = (function() {
     }
 
     function step(callback) {
-      WAIT(PRESENT_DELAY, function() {
+      WAIT(PRESENT_DELAY).then(function() {
         GOTOXY(HUHN.X, HUHN.Y);
         WRITE(' ');
         if (KEYPRESSED()) {
