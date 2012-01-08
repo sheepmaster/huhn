@@ -5,6 +5,7 @@ function LONGINT() {}
 function REAL() {}
 
 const BLACK = 0;
+const LIGHTGREEN = 10;
 const WHITE = 15;
 
 function CHR(c) {
@@ -13,10 +14,6 @@ function CHR(c) {
 function ROUND(x) {
   return Math.round(x);
 }
-
-function TEXTCOLOR(c) {}
-function TEXTBACKGROUND(c) {}
-function HIGHVIDEO() {}
 
 function RANDOMIZE() {}
 

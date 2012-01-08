@@ -72,6 +72,23 @@ Terminal.prototype.crtClrScr = function() {
   this.clearRegion(0, 0, this.terminalWidth, this.terminalHeight,this.style);
 };
 
+Terminal.prototype.crtTextColor = function(c) {
+  this.attr = (this.attr & ~0x0F) | c;
+  this.updateStyle();
+};
+Terminal.prototype.crtBackgroundColor = function(c) {
+  this.attr = (this.attr & ~0xF0) | (c << 4);
+  this.updateStyle();
+};
+Terminal.prototype.crtHighVideo = function() {
+  this.attr = (this.attr & ~0x0400) | 0x0800;
+  this.updateStyle();
+};
+Terminal.prototype.crtLowVideo = function() {
+  this.attr = (this.attr & ~0x0800) | 0x0400;
+  this.updateStyle();
+};
+
 function crtInit() {
   suppressAllAudio = true;
   terminal = new Terminal();
@@ -108,3 +125,20 @@ function CLREOL() {
 function CLRSCR() {
   terminal.crtClrScr();
 }
+
+function TEXTCOLOR(c) {
+  terminal.crtTextColor(c);
+}
+
+function TEXTBACKGROUND(c) {
+  terminal.crtBackgroundColor(c);
+}
+
+function LOWVIDEO() {
+  terminal.crtLowVideo();
+}
+
+function HIGHVIDEO() {
+  terminal.crtHighVideo();
+}
+
