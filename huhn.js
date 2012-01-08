@@ -208,7 +208,8 @@ function SHOW_HIGHSCORES(callback) {
   var I;
   WRITE_HIGHSCORES(HIGHSCORES);
   INVERSE_ON();
-  CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+  // CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+  SAVE_HIGHSCORES_AND_OPTIONS();
   INVERSE_OFF();
   I = 1;
   if (LEVL >= 35) {
@@ -273,7 +274,11 @@ function LOAD_HIGHSCORES_AND_OPTIONS() {
   // RESET(F);
   // READ(F, RED);
   // CLOSE(F);
-  var IORESULT = 1;
+  var IORESULT = -1;
+  if (window.localStorage.getItem('HUHN.HI')) {
+    update(RED, JSON.parse(window.localStorage.getItem('HUHN.HI')));
+    IORESULT = 0;
+  }
   if (IORESULT != 0) {
     for (I = 1; I <= MAX_ENTRIES; I++) {
       HIGHSCORES[I].NAME = 'Anonymous';
@@ -294,17 +299,12 @@ function LOAD_HIGHSCORES_AND_OPTIONS() {
 }
 
 function SAVE_HIGHSCORES_AND_OPTIONS() {
-  var HI_FILE_TYPE = function() {};
-  var R = new WORD();
-  var F = new HI_FILE_TYPE();
+  var R;
   var WRITTEN = new OPTIONS_TYPE();
   WRITTEN.HIGHSCORES = HIGHSCORES;
   WRITTEN.OPTIONS = OPTIONS;
-  ASSIGN(F, 'HUHN.HI');
-  REWRITE(F);
-  WRITE(F, WRITTEN);
-  CLOSE(F);
-  R = IORESULT;
+  window.localStorage.setItem('HUHN.HI', JSON.stringify(WRITTEN));
+  R = 0;
   if (R != 0) {
     WRITELN('Fehler beim Schreiben der Datei \'HUHN.HI\'!');
     WRITELN('Fehlernr.: ', R);
