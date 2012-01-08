@@ -20,6 +20,12 @@ function RANDOMIZE() {}
 function LENGTH(s) {
   return s.length;
 }
+function CONCAT(a, b) {
+  return a + b;
+}
+function DELETE(str, pos, length) {
+  return str.substr(0, pos) + str.substr(pos + length);
+}
 
 function RANDOM(a) {
   if (typeof a == 'undefined') {
@@ -98,34 +104,55 @@ function CENTERED(L, S) {
   WRITE(S);
 }
 
-function READ_IN() {
-  var C = new CHAR();
-  var S = new String();
+function READ_IN(ST, callback) {
+  var C;
+  var S;
   CURSOR_ON();
   S = ST;
   WRITE(S);
-  do {
-    C = READKEY();
-    var accepted_keys = {}; // XXX
-    if (accepted_keys[C] && (LENGTH(S) < 20)) {
-      S = CONCAT(S, C);
-      WRITE(C);
+  loop();
+  function loop() {
+    READKEY(function(C) {
+      var accepted_keys = {};
+      var start = (' ').charCodeAt(0);
+      var end = ('{').charCodeAt(0);
+      for (var i = start; i <= end; i++) {
+        accepted_keys[String.fromCharCode(i)] = true;
+      }
+      ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü'].forEach(function(c) {
+        accepted_keys[c] = true;
+      });
+      if (accepted_keys[C] && (LENGTH(S) < 20)) {
+        S = CONCAT(S, C);
+        WRITE(C);
+      };
+      if ((C == CHR(8)) && (LENGTH(S) > 0)) {
+        S = DELETE(S, LENGTH(S), 1);
+        WRITE(CHR(8), ' ', CHR(8));
+      };
+      if (C == CHR(0)) {
+        READKEY(cont);
+        return;
+      };
+      cont()
+      function cont() {
+        if (C == CHR(13) || C == CHR(27)) {
+          post_loop();
+          return;
+        }
+        loop();
+      }
+    });
+  }
+  function post_loop() {
+    if (C == CHR(13)) {
+      ST = S;
+    } else {
+      ST = '';
     };
-    if ((C == CHR(8)) && (LENGTH(S) > 0)) {
-      DELETE(S, LENGTH(S), 1);
-      WRITE(CHR(8), ' ', CHR(8));
-    };
-    if (C == CHR(0)) {
-      C = READKEY();
-    };
-  } while ((C != CHR(13)) && (C != CHR(27)));
-  if (C == CHR(13)) {
-    ST = S;
-  } else {
-    ST = '';
-  };
-  CURSOR_OFF();
-  return ST;
+    CURSOR_OFF();
+    callback(ST);
+  }
 }
 
 function WRITE_HIGHSCORES(HIGHSCORES) {
@@ -173,39 +200,44 @@ function WRITE_HIGHSCORES(HIGHSCORES) {
   };
 }
 
-function SHOW_HIGHSCORES() {
-  var I = new Number();
+function SHOW_HIGHSCORES(callback) {
+  var I;
   WRITE_HIGHSCORES(HIGHSCORES);
   INVERSE_ON();
   CENTERED(25, '*** Bitte Taste drücken ***');
   INVERSE_OFF();
   I = 1;
   if (LEVL >= 35) {
-    do {
-      COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
-      I = I % 2000 + 1;
-    } while (!KEYPRESSED());
-  };
-  C = READKEY();
-  if (C == CHR(0)) {
-    C = READKEY();
-  };
-  LEVL = 0;
+    // do {
+    //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
+    //   I = I % 2000 + 1;
+    // } while (!KEYPRESSED());
+  }
+  READKEY(function(C) {
+    if (C == CHR(0)) {
+      READKEY(function(C) {
+        LEVL = 0;
+        callback();
+      });
+      return;
+    }
+    callback();
+  });
 }
 
-function PUT_IN_HIGHSCORE(SCOR) {
-  var I, J = new Number();
-  var NAME = new String();
+function PUT_IN_HIGHSCORE(SCOR, LVL) {
+  var I, J;
+  var NAME;
   var NEWHIGHSCORES = new HIGHSCORE_TYPE();
-  NEWHIGHSCORES = HIGHSCORES;
+  update(NEWHIGHSCORES, HIGHSCORES);
   I = 0;
   while ((NEWHIGHSCORES[I].SCOR > SCOR) && (I < MAX_ENTRIES)) {
     I = I + 1;
-  };
+  }
   if (NEWHIGHSCORES[I].SCOR <= SCOR) {
     for (J = MAX_ENTRIES; J >= I + 1; J--) {
-      NEWHIGHSCORES[J] = NEWHIGHSCORES[J - 1]
-    };
+      update(NEWHIGHSCORES[J], NEWHIGHSCORES[J - 1]);
+    }
     NEWHIGHSCORES[I].LVL = LVL;
     NEWHIGHSCORES[I].SCOR = SCOR;
     NAME = 'Anonymous';
@@ -217,14 +249,16 @@ function PUT_IN_HIGHSCORE(SCOR) {
     GOTOXY(26, 9 + I);
     WRITE('                    ');
     GOTOXY(26, 9 + I);
-    READ_IN(NAME);
-    NEWHIGHSCORES[I].NAME = NAME;
-    if (NAME != '') {
-      HIGHSCORES = NEWHIGHSCORES;
-      CHANGED = true;
-    };
-    SHOW_HIGHSCORES();
-  };
+    READ_IN(NAME, function(NAME) {
+      NEWHIGHSCORES[I].NAME = NAME;
+      if (NAME != '') {
+        update(HIGHSCORES, NEWHIGHSCORES);
+        CHANGED = true;
+      }
+      SHOW_HIGHSCORES(function() {
+      });
+    });
+  }
 }
 
 function LOAD_HIGHSCORES_AND_OPTIONS() {
@@ -270,7 +304,7 @@ function SAVE_HIGHSCORES_AND_OPTIONS() {
   if (R != 0) {
     WRITELN('Fehler beim Schreiben der Datei \'HUHN.HI\'!');
     WRITELN('Fehlernr.: ', R);
-  };
+  }
 }
 
 function NEW_GAME() {
@@ -314,7 +348,7 @@ function NEW_GAME() {
       return A;
     } else {
       return B;
-    };
+    }
   }
 
   function WAIT(MIL, callback) {
@@ -327,7 +361,7 @@ function NEW_GAME() {
     //     GETTIME(ST, MI, SE, HU);
     //     TIME2 = ((ONE * ST * 60 + MI) * 60 + SE) * 100 + HU;
     //     J++;
-    // };
+    // }
   }
 
   function CALIBRATE(callback) {
@@ -370,7 +404,7 @@ function NEW_GAME() {
       return 0;
     } else {
       return I - 1;
-    };
+    }
   }
 
   function INIT() {
@@ -379,7 +413,7 @@ function NEW_GAME() {
       for (I = LEFT; I <= RIGHT; I++) {
         TURBO_POWER[J - TOP][I - LEFT] = false;
       }
-    };
+    }
     CENTERED(1, 'Warum ging das Huhn über die Autobahn?');
     CENTERED(2, '© 1999 by Blök!Interactive Megatrend Gamesystems');
     GOTOXY(LEFT, TOP - 2);
@@ -404,13 +438,13 @@ function NEW_GAME() {
       });
       if (AUTOS[I].COLOR == OPTIONS.BACK) {
         AUTOS[I].COLOR = BLACK;
-      };
+      }
       GOTOXY(AUTOS[I].X, AUTOS[I].Y);
       if (OPTIONS.COLOR && COLOR) {
         TEXTCOLOR(AUTOS[I].COLOR);
       };
       WRITE('*');
-    };
+    }
     LEVL = 1;
     HUEHNER = 3;
     PRESENT_DELAY = START_DELAY;
@@ -431,7 +465,7 @@ function NEW_GAME() {
     GOTOXY(RIGHT - 4, TOP - 3);
     if (HUEHNER < 10) {
       WRITE(' ');
-    };
+    }
     WRITE('#x', HUEHNER, '    ');
     GOTOXY(LEFT, BOTTOM + 3);
     WRITE(SCORE);
@@ -455,7 +489,7 @@ function NEW_GAME() {
     } else {
       CENTERED(25, 'UI, BUNT!');
       RAINBOW = true;
-    };
+    }
     GOTOXY(HUHN.X, HUHN.Y);
     INVERSE_OFF();
     WRITE('#');
@@ -470,7 +504,7 @@ function NEW_GAME() {
   function TOT(callback) {
     if (OPTIONS.BEEP) {
       BEEP();
-    };
+    }
     INVERSE_ON();
     CENTERED(25, 'HAA HAA!');
     INVERSE_OFF();
@@ -481,23 +515,23 @@ function NEW_GAME() {
     } else {
       CALIBRATE(cont);
       return;
-    };
+    }
     cont();
     function cont() {
       while (KEYPRESSED()) {
         READKEY(function(CH) {});
-      };
+      }
       callback();
     }
   }
 
   function VORWAERTS_MARSCH(callback) {
-    var I, P = new Number();
+    var I, P;
     var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
     SPLAT = false;
     for (I = 0; I <= 5; I++) {
       POWER_RANGERS_MEGA_ZORD_POWER[I] = false;
-    };
+    }
     for (I = 0; I <= MAX_AUTOS; I++) {
       GOTOXY(AUTOS[I].X, AUTOS[I].Y);
       WRITE(' ');
@@ -513,11 +547,11 @@ function NEW_GAME() {
         AUTOS[I].COLOR = RAND();
         if (AUTOS[I].COLOR == OPTIONS.BACK) {
           AUTOS[I].COLOR = BLACK;
-        };
+        }
         if (RAINBOW) {
           AUTOS[I].COLOR = -1;
-        };
-      };
+        }
+      }
       GOTOXY(AUTOS[I].X, AUTOS[I].Y);
       if (OPTIONS.COLOR && COLOR) {
         if (AUTOS[I].COLOR != -1) {
@@ -525,23 +559,23 @@ function NEW_GAME() {
         } else {
           TEXTCOLOR(RANDOM(16));
         }
-      };
+      }
       TURBO_POWER[AUTOS[I].Y - TOP][AUTOS[I].X - LEFT] = true;
       WRITE('*');
       if ((HUHN.X == AUTOS[I].X) && (HUHN.Y == AUTOS[I].Y)) {
         SPLAT = true;
-      };
+      }
       if (KEY) {
         while (KEYPRESSED()) {
           READKEY(function(CH) {});
         }
-      };
+      }
       KEY = false;
-    };
+    }
     if (SPLAT) {
       TOT(callback);
       return;
-    };
+    }
     callback();
   }
 
@@ -549,7 +583,7 @@ function NEW_GAME() {
     var I;
     if (OPTIONS.COLOR && COLOR) {
       TEXTCOLOR(4);
-    };
+    }
     I = 500;
     loop();
     function loop() {
@@ -663,17 +697,17 @@ function NEW_GAME() {
       function update() {
         if (HUHN.X < LEFT) {
           HUHN.X++;
-        };
+        }
         if (HUHN.X >= RIGHT) {
           HUHN.X--;
-        };
+        }
         if (HUHN.Y > BOTTOM) {
           HUHN.Y--;
-        };
+        }
         if (HUHN.Y < TOP) {
           GESCHAFFT(cont);
           return;
-        };
+        }
         cont();
         function cont() {
           GOTOXY(HUHN.X, HUHN.Y);
@@ -693,8 +727,8 @@ function NEW_GAME() {
               return;
             }
             HAEMISCH_LACHEN(function() {
-              // CLRSCR();
-              // PUT_IN_HIGHSCORE(SCORE, LEVL);
+              CLRSCR();
+              PUT_IN_HIGHSCORE(SCORE, LEVL);
             });
           });
         }
@@ -703,8 +737,8 @@ function NEW_GAME() {
   }
 }
 
-function INFO() {
-  var I = new Number();
+function INFO(callback) {
+  var I;
   GOTOXY(33, 7);
   WRITE(' ╔═════════╗ ');
   GOTOXY(17, 8);
@@ -731,18 +765,23 @@ function INFO() {
   CENTERED(25, '*** Bitte Taste drücken ***');
   INVERSE_OFF();
   I = 999;
-  do {
-    COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
-    I = (I - 997) % 4 + 998;
-  } while (!KEYPRESSED());
-  C = READKEY();
-  if (C == CHR(0)) {
-    C = READKEY();
-  };
+  // do {
+  //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
+  //   I = (I - 997) % 4 + 998;
+  // } while (!KEYPRESSED());
+  READKEY(function(C) {
+    if (C == CHR(0)) {
+      READKEY(function(C) {
+        callback();
+      });
+      return;
+    }
+    callback();
+  });
 }
 
 function EASTER_EGG() {
-  var I = new Number();
+  var I;
   GOTOXY(14, 7);
   WRITE('                    ╔══════════╗');
   GOTOXY(14, 8);
@@ -775,7 +814,7 @@ function EASTER_EGG() {
   C = READKEY();
   if (C == CHR(0)) {
     C = READKEY()
-  };
+  }
 }
 
 function SETUP_OPTIONS() {

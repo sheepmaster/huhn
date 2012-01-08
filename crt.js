@@ -27,6 +27,9 @@ Terminal.prototype.keysPressed = function(s) {
     case '\u001B[B':
         s = '\0P';  // down
         break;
+    case '\x7F':
+        s = '\x08';  // backspace
+        break;
     }
   // console.log('\'' + s + '\'');
   var that = this;
