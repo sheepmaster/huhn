@@ -666,8 +666,7 @@ function NEW_GAME() {
             INVERSE_ON();
             CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
 
-            confirm();
-            function confirm() {
+            function loop() {
               READKEY(function(C) {
                 var keys = {
                   'J': true,
@@ -678,7 +677,7 @@ function NEW_GAME() {
                   '\x0D': true  // CHR(13)
                 };
                 if (typeof keys[C] == 'undefined') {
-                  confirm();
+                  loop();
                   return;
                 }
                 if (keys[C]) {
@@ -690,6 +689,7 @@ function NEW_GAME() {
                 update();
               });
             }
+            loop();
             break;
           default:
             update();
