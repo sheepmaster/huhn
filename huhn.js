@@ -24,7 +24,7 @@ function CONCAT(a, b) {
   return a + b;
 }
 function DELETE(str, pos, length) {
-  return str.substr(0, pos) + str.substr(pos + length);
+  return str.substr(0, pos - 1) + str.substr(pos - 1 + length);
 }
 
 function RANDOM(a) {
@@ -112,7 +112,8 @@ function READ_IN(ST, callback) {
   WRITE(S);
   loop();
   function loop() {
-    READKEY(function(C) {
+    READKEY(function(c) {
+      C = c;
       var accepted_keys = {};
       var start = (' ').charCodeAt(0);
       var end = ('{').charCodeAt(0);
@@ -131,7 +132,10 @@ function READ_IN(ST, callback) {
         WRITE(CHR(8), ' ', CHR(8));
       };
       if (C == CHR(0)) {
-        READKEY(cont);
+        READKEY(function(c) {
+          C = c;
+          cont()
+        });
         return;
       };
       cont()
