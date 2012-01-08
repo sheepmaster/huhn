@@ -784,7 +784,7 @@ function INFO(callback) {
   });
 }
 
-function EASTER_EGG() {
+function EASTER_EGG(callback) {
   var I;
   GOTOXY(14, 7);
   WRITE('                    \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
@@ -815,10 +815,15 @@ function EASTER_EGG() {
   INVERSE_ON();
   CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
   INVERSE_OFF();
-  C = READKEY();
-  if (C == CHR(0)) {
-    C = READKEY()
-  }
+  READKEY(function(C) {
+    if (C == CHR(0)) {
+      READKEY(function(C) {
+        callback();
+      });
+      return;
+    }
+    callback();
+  });
 }
 
 function SETUP_OPTIONS() {
