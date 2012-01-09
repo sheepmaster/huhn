@@ -1,5 +1,9 @@
 var terminal;
 
+function arrayify(args) {
+  return Array.prototype.slice.apply(args);
+}
+
 function extend(subClass, baseClass) {
   function inheritance() { }
   inheritance.prototype          = baseClass.prototype;
@@ -14,9 +18,10 @@ function Future() {
 Future.prototype.fulfill = function() {
   if (this.isFulfilled())
     throw new Error('Future is already fulfilled');
-  this.result_ = Array.prototype.slice.apply(arguments);
+  var result = arrayify(arguments);
+  this.result_ = result;
   this.continuations_.forEach(function(cont) {
-    cont.apply(null, arguments);
+    cont.apply(null, result);
   });
   this.continuations_ = [];
 };
@@ -31,16 +36,24 @@ Future.prototype.then = function(continuation) {
 };
 Future.prototype.pipe = function(f) {
   this.then(function() {
-    f.fulfill.apply(f, Array.prototype.slice.apply(arguments));
+    f.fulfill.apply(f, arrayify(arguments));
   });
 };
+Future.prototype.reversePipe = function(f) {
+  var that = this;
+  var args = arrayify(arguments);
+  f.then(function() {
+    that.fulfill.apply(that, args);
+  });
+}
+
 Future.prototype.isFulfilled = function() {
   return (typeof this.result_ != 'undefined');
 };
 
 function ImmediateFuture() {
   this.superClass.constructor.call(this);
-  this.result_ = Array.prototype.slice.apply(arguments);
+  this.fulfill(arguments);
 }
 extend(ImmediateFuture, Future);
 

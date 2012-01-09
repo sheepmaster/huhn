@@ -774,11 +774,10 @@ var main = (function() {
     //   I = (I - 997) % 4 + 998;
     // } while (!KEYPRESSED());
     READKEY().then(function(C) {
-      if (C == CHR(0)) {
-        READKEY().pipe(f);
-        return;
-      }
-      f.fulfill();
+      var f2 = new ImmediateFuture();
+      if (C == CHR(0))
+        f2 = READKEY();
+      f2.pipe(f);
     });
     return f;
   }
