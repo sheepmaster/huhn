@@ -12,10 +12,10 @@ function extend(subClass, baseClass) {
   subClass.prototype.superClass  = baseClass.prototype;
 };
 
-numUnfulfilledFutures = 0;
+unfulfilledFutures = [];
 
 function Future() {
-  numUnfulfilledFutures++;
+  unfulfilledFutures.push(this);
   this.continuations_ = [];
 }
 Future.prototype.fulfill = function() {
@@ -26,7 +26,8 @@ Future.prototype.fulfill = function() {
   this.continuations_.forEach(function(cont) {
     cont.apply(null, result);
   });
-  if (--numUnfulfilledFutures == 0)
+  unfulfilledFutures.splice(unfulfilledFutures.indexOf(this), 1);
+  if (unfulfilledFutures.length == 0)
     console.log("No unfulfilled futures left");
   this.continuations_ = [];
 };
