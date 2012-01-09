@@ -262,7 +262,7 @@ var main = (function() {
       GOTOXY(26, 9 + I);
       WRITE('                    ');
       GOTOXY(26, 9 + I);
-      READ_IN(NAME, function(NAME) {
+      READ_IN(NAME).then(function(NAME) {
         NEWHIGHSCORES[I].NAME = NAME;
         if (NAME != '') {
           update(HIGHSCORES, NEWHIGHSCORES);
