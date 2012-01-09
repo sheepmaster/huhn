@@ -319,7 +319,8 @@ var main = (function() {
     }
   }
 
-  function NEW_GAME(callback) {
+  function NEW_GAME() {
+    var f = new Future();
     const MAX_AUTOS = 30;
     const START_DELAY = 110;
     const SPEED_FACTOR = .977;
@@ -619,15 +620,17 @@ var main = (function() {
       INVERSE_OFF();
       CLRSCR();
       INIT();
-      start_level(callback);
+      start_level().pipe(f);
     });
+    return f;
 
-    function start_level(callback) {
+    function start_level() {
       INIT2();
-      step(callback);
+      return step();
     }
 
-    function step(callback) {
+    function step() {
+      var f = new Future();
       WAIT(PRESENT_DELAY).then(function() {
         GOTOXY(HUHN.X, HUHN.Y);
         WRITE(' ');
@@ -724,16 +727,16 @@ var main = (function() {
               GOTOXY(RIGHT - 4, BOTTOM + 3);
               WRITE(BONUS2, '     ');
               if (!START_AGAIN) {
-                step(callback);
+                step().pipe(f);
                 return;
               }
               if (!GAME_OVER) {
-                start_level(callback);
+                start_level().pipe(f);
                 return;
               }
               HAEMISCH_LACHEN().then(function() {
                 CLRSCR();
-                PUT_IN_HIGHSCORE(SCORE, LEVL).then(callback);
+                PUT_IN_HIGHSCORE(SCORE, LEVL).pipe(f);
               });
             });
           });
