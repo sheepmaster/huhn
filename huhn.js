@@ -716,7 +716,7 @@ var main = (function() {
             GOTOXY(HUHN.X, HUHN.Y);
             INVERSE_OFF();
             WRITE('#');
-            VORWAERTS_MARSCH(function() {
+            VORWAERTS_MARSCH().then(function() {
               INVERSE_OFF();
               BONUS2 = MAX(BONUS2 - REDUCTION, 0);
               GOTOXY(RIGHT - 4, BOTTOM + 3);
