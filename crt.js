@@ -1,30 +1,5 @@
 var terminal;
 
-function Future() {
-}
-Future.prototype.fulfill = function() {
-  if (this.isFulfilled())
-    throw new Error('Future is already fulfilled');
-  this.result_ = Array.prototype.slice.apply(arguments);
-  var continuation = this.continuation_;
-  if (continuation)
-    continuation.apply(null, arguments);
-};
-Future.prototype.then = function(f) {
-  if (this.isBound())
-    throw new Error('Future is already bound');
-  this.continuation_ = f;
-  var args = this.result_;
-  if (args)
-    f.apply(null, args);
-};
-Future.prototype.isFulfilled = function() {
-  return (typeof this.result_ != 'undefined');
-};
-Future.prototype.isBound = function() {
-  return (typeof this.continuation_ != 'undefined');
-}
-
 function extend(subClass, baseClass) {
   function inheritance() { }
   inheritance.prototype          = baseClass.prototype;
@@ -32,6 +7,47 @@ function extend(subClass, baseClass) {
   subClass.prototype.constructor = subClass;
   subClass.prototype.superClass  = baseClass.prototype;
 };
+
+function Future() {
+  this.continuations_ = [];
+}
+Future.prototype.fulfill = function() {
+  if (this.isFulfilled())
+    throw new Error('Future is already fulfilled');
+  this.result_ = Array.prototype.slice.apply(arguments);
+  this.continuations_.forEach(function(cont) {
+    cont.apply(null, arguments);
+  });
+  this.continuations_ = [];
+};
+Future.prototype.then = function(continuation) {
+  var args = this.result_;
+  if (args) {
+    continuation.apply(null, args);
+  } else {
+    this.continuations_.push(continuation);
+  }
+};
+Future.prototype.pipe = function(f) {
+  this.then(function() {
+    f.fulfill.apply(f, Array.prototype.slice.apply(arguments));
+  });
+};
+Future.prototype.isFulfilled = function() {
+  return (typeof this.result_ != 'undefined');
+};
+
+function ImmediateFuture() {
+  this.superClass.constructor.call(this);
+  this.result_ = Array.prototype.slice.apply(arguments);
+}
+extend(ImmediateFuture, Future);
+
+function TimedFuture(timeout) {
+  this.superClass.constructor.call(this);
+  window.setTimeout(this.fulfill.bind(this), timeout);
+}
+extend(TimedFuture, Future);
 
 function Terminal() {
   this.superClass.constructor.call(this);
