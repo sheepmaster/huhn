@@ -108,7 +108,8 @@ var main = (function() {
     WRITE(S);
   }
 
-  function READ_IN(ST, callback) {
+  function READ_IN(ST) {
+    var f = new Future();
     var C;
     var S;
     CURSOR_ON();
@@ -135,21 +136,20 @@ var main = (function() {
           S = DELETE(S, LENGTH(S), 1);
           WRITE(CHR(8), ' ', CHR(8));
         };
+        var f2 = new ImmediateFuture();
         if (C == CHR(0)) {
-          READKEY().then(function(c) {
+          f2 = READKEY().then(function(c) {
             C = c;
             cont();
           });
-          return;
         };
-        cont()
-        function cont() {
+        f2.then(function() {
           if (C == CHR(13) || C == CHR(27)) {
             post_loop();
             return;
           }
           loop();
-        }
+        });
       });
     }
     function post_loop() {
@@ -159,8 +159,9 @@ var main = (function() {
         ST = '';
       };
       CURSOR_OFF();
-      callback(ST);
+      f.fulfill(ST);
     }
+    return f;
   }
 
   function WRITE_HIGHSCORES(HIGHSCORES) {
@@ -208,7 +209,8 @@ var main = (function() {
     };
   }
 
-  function SHOW_HIGHSCORES(callback) {
+  function SHOW_HIGHSCORES() {
+    var f = new Future();
     var I;
     WRITE_HIGHSCORES(HIGHSCORES);
     INVERSE_ON();
@@ -224,18 +226,19 @@ var main = (function() {
     //   } while (!KEYPRESSED());
     // }
     READKEY().then(function(C) {
+      var f2 = new ImmediateFuture();
       if (C == CHR(0)) {
-        READKEY().then(function(C) {
+        f2 = READKEY().then(function(C) {
           LEVL = 0;
-          callback();
         });
-        return;
       }
-      callback();
+      f2.pipe(f);
     });
+    return f;
   }
 
-  function PUT_IN_HIGHSCORE(SCOR, LVL, callback) {
+  function PUT_IN_HIGHSCORE(SCOR, LVL) {
+    var f = new Future();
     var I, J;
     var NAME;
     var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -265,11 +268,10 @@ var main = (function() {
           update(HIGHSCORES, NEWHIGHSCORES);
           CHANGED = true;
         }
-        SHOW_HIGHSCORES(callback);
+        SHOW_HIGHSCORES().pipe(f);
       });
-    } else {
-      callback();
     }
+    return f;
   }
 
   function LOAD_HIGHSCORES_AND_OPTIONS() {
@@ -582,7 +584,8 @@ var main = (function() {
       return f;
     }
 
-    function HAEMISCH_LACHEN(callback) {
+    function HAEMISCH_LACHEN() {
+      var f = new Future();
       var I;
       if (OPTIONS.COLOR && COLOR) {
         TEXTCOLOR(4);
@@ -601,9 +604,9 @@ var main = (function() {
         }
         WAIT(500).then(function() {
           INVERSE_OFF();
-          callback();
-        });
+        }).pipe(f);
       }
+      return f;
     }
 
     INVERSE_ON();
@@ -698,6 +701,7 @@ var main = (function() {
         }
         update();
         function update() {
+          var f = new ImmediateFuture();
           if (HUHN.X < LEFT) {
             HUHN.X++;
           }
@@ -708,11 +712,9 @@ var main = (function() {
             HUHN.Y--;
           }
           if (HUHN.Y < TOP) {
-            GESCHAFFT().then(cont);
-            return;
+            f = GESCHAFFT();
           }
-          cont();
-          function cont() {
+          f.then(function() {
             GOTOXY(HUHN.X, HUHN.Y);
             INVERSE_OFF();
             WRITE('#');
@@ -729,12 +731,12 @@ var main = (function() {
                 start_level(callback);
                 return;
               }
-              HAEMISCH_LACHEN(function() {
+              HAEMISCH_LACHEN().then(function() {
                 CLRSCR();
-                PUT_IN_HIGHSCORE(SCORE, LEVL, callback);
+                PUT_IN_HIGHSCORE(SCORE, LEVL).then(callback);
               });
             });
-          }
+          });
         }
       });
     }
@@ -1177,7 +1179,7 @@ var main = (function() {
             NEW_GAME(cont);
             return;
           case 2:
-            SHOW_HIGHSCORES(cont);
+            SHOW_HIGHSCORES().then(cont);
             return;
           case 3:
             SETUP_OPTIONS(cont);
