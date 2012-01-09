@@ -362,9 +362,7 @@ var main = (function() {
     }
 
     function WAIT(MIL) {
-      var f = new Future();
-      window.setTimeout(f.fulfill.bind(f), MIL);
-      return f;
+      return new TimedFuture(MIL);
       // var I, J = new Number();
       // var ST, MI, SE, HU = new WORD();
       // var TIME2 = new LONGINT();
@@ -375,9 +373,8 @@ var main = (function() {
       // }
     }
 
-    function CALIBRATE(callback) {
-      if (callback)
-        window.setTimeout(callback, PRESENT_DELAY * 10);
+    function CALIBRATE() {
+      return new TimedFuture(PRESENT_DELAY * 10);
       // var ST, MI, SE, HU = new WORD();
       // var TIME, TIME2, INT = new LONGINT();
       // INT = 0;
@@ -486,8 +483,8 @@ var main = (function() {
       WRITE(BONUS);
     }
 
-    function GESCHAFFT(callback) {
-      var I = new Number();
+    function GESCHAFFT() {
+      var I;
       PRESENT_DELAY = ROUND(PRESENT_DELAY * SPEED_FACTOR);
       LEVL++;
       HUEHNER++;
@@ -504,15 +501,15 @@ var main = (function() {
       GOTOXY(HUHN.X, HUHN.Y);
       INVERSE_OFF();
       WRITE('#');
-      CALIBRATE(function() {
+      return CALIBRATE().then(function() {
         WRITE(CHR(8), ' ');
         HUHN.X = (RIGHT + LEFT) / 2;
         HUHN.Y = BOTTOM;
-        callback();
       });
     }
 
-    function TOT(callback) {
+    function TOT() {
+      var f = new ImmediateFuture();
       if (OPTIONS.BEEP) {
         BEEP();
       }
@@ -524,19 +521,16 @@ var main = (function() {
       if (HUEHNER < 0) {
         GAME_OVER = true;
       } else {
-        CALIBRATE(cont);
-        return;
+        f = CALIBRATE();
       }
-      cont();
-      function cont() {
-        while (KEYPRESSED()) {
+      return f.then(function() {
+        while (KEYPRESSED())
           READKEY();
-        }
-        callback();
-      }
+      });
     }
 
-    function VORWAERTS_MARSCH(callback) {
+    function VORWAERTS_MARSCH() {
+      var f = new ImmediateFuture();
       var I, P;
       var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
       SPLAT = false;
@@ -583,11 +577,9 @@ var main = (function() {
         }
         KEY = false;
       }
-      if (SPLAT) {
-        TOT(callback);
-        return;
-      }
-      callback();
+      if (SPLAT)
+        f = TOT();
+      return f;
     }
 
     function HAEMISCH_LACHEN(callback) {
@@ -618,7 +610,7 @@ var main = (function() {
     CENTERED(25, '                               Bitte warten...                                 ');
     PRESENT_DELAY = START_DELAY;
     FAC = 500;
-    CALIBRATE(function() {
+    CALIBRATE().then(function() {
       GOTOXY(47, 25);
       WRITE('OK.');
       INVERSE_OFF();
@@ -716,7 +708,7 @@ var main = (function() {
             HUHN.Y--;
           }
           if (HUHN.Y < TOP) {
-            GESCHAFFT(cont);
+            GESCHAFFT().then(cont);
             return;
           }
           cont();
@@ -748,7 +740,8 @@ var main = (function() {
     }
   }
 
-  function INFO(callback) {
+  function INFO() {
+    var f = new Future();
     var I;
     GOTOXY(33, 7);
     WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
@@ -775,18 +768,19 @@ var main = (function() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
-    I = 999;
+    // I = 999;
     // do {
     //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
     //   I = (I - 997) % 4 + 998;
     // } while (!KEYPRESSED());
     READKEY().then(function(C) {
       if (C == CHR(0)) {
-        READKEY().then(callback);
+        READKEY().pipe(f);
         return;
       }
-      callback();
+      f.fulfill();
     });
+    return f;
   }
 
   function EASTER_EGG(callback) {
@@ -1109,7 +1103,7 @@ var main = (function() {
     LOAD_HIGHSCORES_AND_OPTIONS();
     INVERSE_OFF();
     CLRSCR();
-    INFO(loop);
+    INFO().then(loop);
     function loop() {
       INVERSE_OFF();
       CLRSCR();
@@ -1175,7 +1169,7 @@ var main = (function() {
           switch (POS) {
           case 0:
             if (C != CHR(10)) {
-              INFO(cont);
+              INFO().then(cont);
             } else {
               EASTER_EGG(cont);
             }
