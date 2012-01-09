@@ -27,6 +27,7 @@ Future.prototype.then = function(continuation) {
   } else {
     this.continuations_.push(continuation);
   }
+  return this;
 };
 Future.prototype.pipe = function(f) {
   this.then(function() {
