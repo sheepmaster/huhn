@@ -227,12 +227,11 @@ var main = (function() {
     // }
     READKEY().then(function(C) {
       var f2 = new ImmediateFuture();
-      if (C == CHR(0)) {
-        f2 = READKEY().then(function(C) {
-          LEVL = 0;
-        });
-      }
-      f2.pipe(f);
+      if (C == CHR(0))
+        f2 = READKEY();
+      f2.then(function(C) {
+        LEVL = 0;
+      }).pipe(f);
     });
     return f;
   }
@@ -320,7 +319,6 @@ var main = (function() {
   }
 
   function NEW_GAME() {
-    var f = new Future();
     const MAX_AUTOS = 30;
     const START_DELAY = 110;
     const SPEED_FACTOR = .977;
@@ -614,15 +612,14 @@ var main = (function() {
     CENTERED(25, '                               Bitte warten...                                 ');
     PRESENT_DELAY = START_DELAY;
     FAC = 500;
-    CALIBRATE().then(function() {
+    return CALIBRATE().defer(function() {
       GOTOXY(47, 25);
       WRITE('OK.');
       INVERSE_OFF();
       CLRSCR();
       INIT();
-      start_level().pipe(f);
+      return start_level();
     });
-    return f;
 
     function start_level() {
       INIT2();
@@ -630,79 +627,76 @@ var main = (function() {
     }
 
     function step() {
-      var f = new Future();
-      WAIT(PRESENT_DELAY).then(function() {
+      return WAIT(PRESENT_DELAY).defer(function() {
         GOTOXY(HUHN.X, HUHN.Y);
         WRITE(' ');
         if (KEYPRESSED()) {
           KEY = true;
-          READKEY().then(function(CH) {
+          return READKEY().defer(function(CH) {
             switch (CH) {
-            case '\0':
-              READKEY().then(function(CH) {
-                switch (CH) {
-                case 'K':
-                  HUHN.X--;
-                  break;
-                case 'P':
-                  HUHN.Y++;
-                  break;
-                case 'M':
-                  HUHN.X++;
-                  break;
-                case 'H':
-                  HUHN.Y--;
-                  break;
-                }
-                update();
-              });
-              break;
-            case ' ':
-              INVERSE_ON();
-              CENTERED(25, '***PAUSE***');
-              READKEY().then(function(CH) {
-                GOTOXY(21, 25);
-                WRITE('Warum ging das Huhn \u00FCber die Autobahn?');
-                INVERSE_OFF();
-                update();
-              });
-              break;
-            case '\x1B':  // #27
-              INVERSE_ON();
-              CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
-
-              function loop() {
-                READKEY().then(function(C) {
-                  var keys = {
-                    'J': true,
-                    'j': true,
-                    'N': false,
-                    'n': false,
-                    '\x1B': false,  // CHR(27)
-                    '\x0D': true  // CHR(13)
-                  };
-                  if (typeof keys[C] == 'undefined') {
-                    loop();
-                    return;
+              case '\0':
+                return READKEY().defer(function(CH) {
+                  switch (CH) {
+                    case 'K':
+                      HUHN.X--;
+                      break;
+                    case 'P':
+                      HUHN.Y++;
+                      break;
+                    case 'M':
+                      HUHN.X++;
+                      break;
+                    case 'H':
+                      HUHN.Y--;
+                      break;
                   }
-                  if (keys[C]) {
-                    START_AGAIN = true;
-                    GAME_OVER = true;
-                  }
-                  CENTERED(25, 'Warum ging das Huhn \u00FCber die Autobahn?');
-                  INVERSE_OFF();
-                  update();
+                  return update();
                 });
-              }
-              loop();
-              break;
-            default:
-              update();
+                break;
+              case ' ':
+                INVERSE_ON();
+                CENTERED(25, '***PAUSE***');
+                return READKEY().defer(function(CH) {
+                  GOTOXY(21, 25);
+                  WRITE('Warum ging das Huhn \u00FCber die Autobahn?');
+                  INVERSE_OFF();
+                  return update();
+                });
+                break;
+              case '\x1B':  // #27
+                INVERSE_ON();
+                CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
+
+                function loop() {
+                  return READKEY().defer(function(C) {
+                    var keys = {
+                      'J': true,
+                      'j': true,
+                      'N': false,
+                      'n': false,
+                      '\x1B': false,  // CHR(27)
+                      '\x0D': true  // CHR(13)
+                    };
+                    if (typeof keys[C] == 'undefined') {
+                      return loop();
+                    }
+                    if (keys[C]) {
+                      START_AGAIN = true;
+                      GAME_OVER = true;
+                    }
+                    CENTERED(25, 'Warum ging das Huhn \u00FCber die Autobahn?');
+                    INVERSE_OFF();
+                    return update();
+                  });
+                }
+                return loop();
+                break;
+              default:
+                return update();
             }
           });
-          return;
         }
-        update();
+        return update();
         function update() {
           var f = new ImmediateFuture();
           if (HUHN.X < LEFT) {
@@ -717,26 +711,22 @@ var main = (function() {
           if (HUHN.Y < TOP) {
             f = GESCHAFFT();
           }
-          f.then(function() {
+          return f.defer(function() {
             GOTOXY(HUHN.X, HUHN.Y);
             INVERSE_OFF();
             WRITE('#');
-            VORWAERTS_MARSCH().then(function() {
+            return VORWAERTS_MARSCH().defer(function() {
               INVERSE_OFF();
               BONUS2 = MAX(BONUS2 - REDUCTION, 0);
               GOTOXY(RIGHT - 4, BOTTOM + 3);
               WRITE(BONUS2, '     ');
-              if (!START_AGAIN) {
-                step().pipe(f);
-                return;
-              }
-              if (!GAME_OVER) {
-                start_level().pipe(f);
-                return;
-              }
-              HAEMISCH_LACHEN().then(function() {
+              if (!START_AGAIN)
+                return step();
+              if (!GAME_OVER)
+                return start_level();
+              return HAEMISCH_LACHEN().defer(function() {
                 CLRSCR();
-                PUT_IN_HIGHSCORE(SCORE, LEVL).pipe(f);
+                return PUT_IN_HIGHSCORE(SCORE, LEVL);
               });
             });
           });
@@ -746,7 +736,6 @@ var main = (function() {
   }
 
   function INFO() {
-    var f = new Future();
     var I;
     GOTOXY(33, 7);
     WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
@@ -778,13 +767,12 @@ var main = (function() {
     //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
     //   I = (I - 997) % 4 + 998;
     // } while (!KEYPRESSED());
-    READKEY().then(function(C) {
+    return READKEY().defer(function(C) {
       var f2 = new ImmediateFuture();
       if (C == CHR(0))
         f2 = READKEY();
-      f2.pipe(f);
+      return f2;
     });
-    return f;
   }
 
   function EASTER_EGG(callback) {
@@ -1179,7 +1167,7 @@ var main = (function() {
             }
             return;
           case 1:
-            NEW_GAME(cont);
+            NEW_GAME().then(cont);
             return;
           case 2:
             SHOW_HIGHSCORES().then(cont);

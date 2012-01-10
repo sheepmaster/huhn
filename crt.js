@@ -42,16 +42,16 @@ Future.prototype.then = function(continuation) {
 };
 Future.prototype.pipe = function(f) {
   this.then(function() {
-    f.fulfill.apply(f, arrayify(arguments));
+    f.fulfill.apply(f, arguments);
   });
 };
-Future.prototype.reversePipe = function(f) {
-  var that = this;
-  var args = arrayify(arguments);
-  f.then(function() {
-    that.fulfill.apply(that, args);
+Future.prototype.defer = function(f) {
+  var future = new Future();
+  this.then(function() {
+    f.apply(null, arguments).pipe(future);
   });
-}
+  return future;
+};
 
 Future.prototype.isFulfilled = function() {
   return (typeof this.result_ != 'undefined');
@@ -59,7 +59,7 @@ Future.prototype.isFulfilled = function() {
 
 function ImmediateFuture() {
   this.superClass.constructor.call(this);
-  this.fulfill(arguments);
+  this.fulfill.apply(this, arguments);
 }
 extend(ImmediateFuture, Future);
 
