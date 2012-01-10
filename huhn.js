@@ -115,9 +115,9 @@ var main = (function() {
     CURSOR_ON();
     S = ST;
     WRITE(S);
-    loop();
+    return loop();
     function loop() {
-      READKEY().then(function(c) {
+      return READKEY().defer(function(c) {
         C = c;
         var accepted_keys = {};
         var start = (' ').charCodeAt(0);
@@ -140,15 +140,13 @@ var main = (function() {
         if (C == CHR(0)) {
           f2 = READKEY().then(function(c) {
             C = c;
-            cont();
           });
         };
-        f2.then(function() {
+        return f2.defer(function() {
           if (C == CHR(13) || C == CHR(27)) {
-            post_loop();
-            return;
+            return post_loop();
           }
-          loop();
+          return loop();
         });
       });
     }
@@ -159,7 +157,7 @@ var main = (function() {
         ST = '';
       };
       CURSOR_OFF();
-      f.fulfill(ST);
+      return new ImmediateFuture(ST);
     }
     return f;
   }
@@ -237,7 +235,7 @@ var main = (function() {
   }
 
   function PUT_IN_HIGHSCORE(SCOR, LVL) {
-    var f = new Future();
+    var f = new ImmediateFuture();
     var I, J;
     var NAME;
     var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -261,13 +259,13 @@ var main = (function() {
       GOTOXY(26, 9 + I);
       WRITE('                    ');
       GOTOXY(26, 9 + I);
-      READ_IN(NAME).then(function(NAME) {
+      f = READ_IN(NAME).defer(function(NAME) {
         NEWHIGHSCORES[I].NAME = NAME;
         if (NAME != '') {
           update(HIGHSCORES, NEWHIGHSCORES);
           CHANGED = true;
         }
-        SHOW_HIGHSCORES().pipe(f);
+        return SHOW_HIGHSCORES();
       });
     }
     return f;
