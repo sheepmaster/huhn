@@ -38,9 +38,9 @@ Future.prototype.then = function(continuation) {
   }
   return this;
 };
-Future.prototype.pipe = function(f) {
+Future.prototype.pipe = function(future) {
   this.then(function() {
-    f.fulfill.apply(f, arguments);
+    future.fulfill.apply(future, arguments);
   });
 };
 Future.prototype.defer = function(f) {
@@ -77,11 +77,16 @@ function AnimationFuture() {
 extend(AnimationFuture, Future);
 
 function repeat_until(body, condition) {
-  return body().defer(function() {
-    if (condition()) {
-      return new ImmediateFuture();
-    } else {
-      return repeat_until(body, condition);
-    }
-  });
+  var f = new Future();
+  loop();
+  function loop() {
+    body().then(function() {
+      if (condition()) {
+        f.fulfill();
+      } else {
+        loop();
+      }
+    });
+  }
+  return f;
 }

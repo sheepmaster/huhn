@@ -46,6 +46,8 @@ Terminal.prototype.keysPressed = function(s) {
         break;
     }
   // console.log('\'' + s + '\'');
+    case '\u001B':  // escape
+        break;
     default:
         // Ignore other escape sequences.
         if (s.charCodeAt(0) == 27)
@@ -89,8 +91,13 @@ Terminal.prototype.crtClrScr = function() {
 };
 
 Terminal.prototype.crtTextColor = function(c) {
-  this.attr = (this.attr & ~0x0F) | c;
-  this.updateStyle();
+  if (this.textColor_ != c) {
+    this.attr = (this.attr & ~0x0F) | c;
+    this.updateStyle();
+    updateStyleRule(document.styleSheets[document.styleSheets.length - 1], '#vt100 #cursor.bright', 'background-color: '+this.ansi[c]);
+    updateStyleRule(document.styleSheets[document.styleSheets.length - 1], '#vt100 #cursor.inactive', 'border-color: '+this.ansi[c]);
+    this.textColor_ = c;
+  }
 };
 Terminal.prototype.crtBackgroundColor = function(c) {
   this.attr = (this.attr & ~0xF0) | (c << 4);
@@ -104,6 +111,23 @@ Terminal.prototype.crtLowVideo = function() {
   this.attr = (this.attr & ~0x0800) | 0x0400;
   this.updateStyle();
 };
+Terminal.prototype.getCharAt = function(x, y) {
+  var line = this.console[this.currentScreen].childNodes[y];
+  if (!line)
+    return ' ';
+  var span = line.firstChild;
+  var xPos = 0;
+  while (span && xPos <= x) {
+    var s = this.getTextContent(span);
+    var len = s.length;
+    if (xPos + len > x) {
+      return s.charAt(x - xPos);
+    }
+    xPos += len;
+    span = span.nextSibling;
+  }
+  return ' ';
+}
 
 function crtInit() {
   suppressAllAudio = true;
@@ -162,3 +186,21 @@ function HIGHVIDEO() {
   terminal.crtHighVideo();
 }
 
+function updateStyleRule(stylesheet, selector, style) {
+  for (var i = 0; i < stylesheet.rules.length; i++) {
+    var rule = stylesheet.rules[i];
+    if (rule.selectorText == selector) {
+      rule.style.cssText = style;
+      return;
+    }
+  }
+  stylesheet.insertRule(selector + ' { ' + style + ' } ');
+}
+
+function setColoScreenAttr(index, attr) {
+  var row = Math.floor((index - 1) / 80);
+  var col = (index - 1) % 80;
+  var color = 'color:' + terminal.ansi[attr] + ';'
+  color += 'background-color:rgb(0, 0, 0);';
+  terminal.putString(col, row, terminal.getCharAt(col, row), color);
+}
