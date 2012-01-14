@@ -8,6 +8,8 @@ function Terminal() {
 }
 extend(Terminal, VT100);
 Terminal.prototype.keyDown = function(e) {
+  if (e.keyLocation == 3 && e.keyCode == 13)
+    e.keyCode = 10;
   if (e.metaKey)
     return true;
   return this.superClass.keyDown.call(this, e);
@@ -24,6 +26,9 @@ Terminal.prototype.keyPressed = function(e) {
 };
 Terminal.prototype.keysPressed = function(s) {
   switch(s) {
+    case '\u001B\r':
+        s = "\n";
+        break;
     case '\u001B[D':
         s = '\0K';  // left
         break;
@@ -41,6 +46,11 @@ Terminal.prototype.keysPressed = function(s) {
         break;
     }
   // console.log('\'' + s + '\'');
+    default:
+        // Ignore other escape sequences.
+        if (s.charCodeAt(0) == 27)
+          return;
+  }
   var that = this;
   function pushFulfilledFuture(f) {
     that.fulfilledFutures_.push(f);
