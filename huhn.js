@@ -109,14 +109,12 @@ var main = (function() {
   }
 
   function READ_IN(ST) {
-    var f = new Future();
     var C;
     var S;
     CURSOR_ON();
     S = ST;
     WRITE(S);
-    return loop();
-    function loop() {
+    return repeat_until(function() {
       return READKEY().defer(function(c) {
         C = c;
         var accepted_keys = {};
@@ -142,15 +140,11 @@ var main = (function() {
             C = c;
           });
         };
-        return f2.defer(function() {
-          if (C == CHR(13) || C == CHR(27)) {
-            return post_loop();
-          }
-          return loop();
-        });
+        return f2;
       });
-    }
-    function post_loop() {
+    }, function() {
+      return (C == CHR(13) || C == CHR(27));
+    }).defer(function() {
       if (C == CHR(13)) {
         ST = S;
       } else {
@@ -158,8 +152,7 @@ var main = (function() {
       };
       CURSOR_OFF();
       return new ImmediateFuture(ST);
-    }
-    return f;
+    });
   }
 
   function WRITE_HIGHSCORES(HIGHSCORES) {
@@ -208,12 +201,10 @@ var main = (function() {
   }
 
   function SHOW_HIGHSCORES() {
-    var f = new Future();
     var I;
     WRITE_HIGHSCORES(HIGHSCORES);
     INVERSE_ON();
-    // CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
-    CENTERED(25, '');
+    CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     SAVE_HIGHSCORES_AND_OPTIONS();
     INVERSE_OFF();
     I = 1;
@@ -223,15 +214,14 @@ var main = (function() {
     //     I = I % 2000 + 1;
     //   } while (!KEYPRESSED());
     // }
-    READKEY().then(function(C) {
+    return READKEY().defer(function(C) {
       var f2 = new ImmediateFuture();
       if (C == CHR(0))
         f2 = READKEY();
-      f2.then(function(C) {
+      return f2.then(function(C) {
         LEVL = 0;
-      }).pipe(f);
+      });
     });
-    return f;
   }
 
   function PUT_IN_HIGHSCORE(SCOR, LVL) {
@@ -582,28 +572,24 @@ var main = (function() {
     }
 
     function HAEMISCH_LACHEN() {
-      var f = new Future();
       var I;
       if (OPTIONS.COLOR && COLOR) {
         TEXTCOLOR(4);
       }
       I = 500;
-      loop();
-      function loop() {
-        if (I >= 0) {
-          GOTOXY(RANDOM(71) + 1, RANDOM(24) + 1);
-          WAIT(I / 50 + 3).then(function() {
-            WRITE('GAME OVER!');
-            I--;
-            loop();
-          });
-          return;
-        }
-        WAIT(500).then(function() {
+      return repeat_until(function() {
+        GOTOXY(RANDOM(71) + 1, RANDOM(24) + 1);
+        return WAIT(I / 50 + 3).then(function() {
+          WRITE('GAME OVER!');
+          I--;
+        });
+      }, function() {
+        return (I < 0);
+      }).defer(function() {
+        return WAIT(500).then(function() {
           INVERSE_OFF();
-        }).pipe(f);
-      }
-      return f;
+        });
+      });
     }
 
     INVERSE_ON();
@@ -773,7 +759,7 @@ var main = (function() {
     });
   }
 
-  function EASTER_EGG(callback) {
+  function EASTER_EGG() {
     var I;
     GOTOXY(14, 7);
     WRITE('                    \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
@@ -804,16 +790,16 @@ var main = (function() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
-    READKEY().then(function(C) {
+    return READKEY().defer(function(C) {
+      var f = new ImmediateFuture();
       if (C == CHR(0)) {
-        READKEY().then(callback);
-        return;
+        f = READKEY();
       }
-      callback();
+      return f;
     });
   }
 
-  function SETUP_OPTIONS(callback) {
+  function SETUP_OPTIONS() {
     var I, POS;
     var OUT;
     var NEW_OPTIONS = new OPTION_TYPE();
@@ -936,8 +922,7 @@ var main = (function() {
     }
     POS = 0;
     update(NEW_OPTIONS, OPTIONS);
-    loop();
-    function loop() {
+    return repeat_until(function() {
       CLRSCR();
       GOTOXY(33, 5);
       WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
@@ -978,37 +963,30 @@ var main = (function() {
       WRITE_MENU(POS);
       INVERSE_OFF();
       WRITE_TEXT();
-      inner_loop();
-      function inner_loop() {
-        READKEY().then(function(c) {
+      return repeat_until(function() {
+        return READKEY().defer(function(c) {
+          var f = new ImmediateFuture();
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
-            READKEY().then(function(C) {
+            f = READKEY().then(function(C) {
               if (C == 'P') {
                 POS = (POS + 1) % 6;
               };
               if (C == 'H') {
                 POS = (POS + 5) % 6;
               };
-              cont();
             });
-            return;
           };
-          cont();
-          function cont() {
+          return f.then(function() {
             INVERSE_ON();
             WRITE_MENU(POS);
             INVERSE_OFF();
-            if (!(C == CHR(13) || C == CHR(27))) {
-              inner_loop();
-            } else {
-              inner_cont();
-            }
-          }
+          });
         });
-      }
-      function inner_cont() {
+      }, function() {
+        return (C == CHR(13) || C == CHR(27));
+      }).then(function() {
         if (C == CHR(27)) {
           POS = 5;
         };
@@ -1030,20 +1008,15 @@ var main = (function() {
           OUT = true;
           break;
         };
-        if (!OUT) {
-          loop();
-        } else {
-          outer_cont();
-        }
-      }
-    }
-    function outer_cont() {
+      });
+    }, function() {
+      return OUT;
+    }).then(function() {
       if (POS == 4) {
         update(OPTIONS, NEW_OPTIONS);
         CHANGED = true;
       };
-      callback();
-    }
+    });
   }
 
   function WRITE_MENU(P) {
@@ -1093,102 +1066,91 @@ var main = (function() {
     LOAD_HIGHSCORES_AND_OPTIONS();
     INVERSE_OFF();
     CLRSCR();
-    INFO().then(loop);
-    function loop() {
-      INVERSE_OFF();
-      CLRSCR();
-      GOTOXY(33, 7);
-      WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
-      GOTOXY(30, 8);
-      WRITE('\u2554\u2550\u2550\u2563 Hauptmen\u00FC \u2560\u2550\u2550\u2557');
-      GOTOXY(30, 9);
-      WRITE('\u2551  \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D  \u2551');
-      GOTOXY(30, 10);
-      WRITE('\u2551                 \u2551');
-      GOTOXY(30, 11);
-      WRITE('\u2551                 \u2551');
-      GOTOXY(30, 12);
-      WRITE('\u2551                 \u2551');
-      GOTOXY(30, 13);
-      WRITE('\u2551                 \u2551');
-      GOTOXY(30, 14);
-      WRITE('\u2551                 \u2551');
-      GOTOXY(30, 15);
-      WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
-      for (I = 0; I <= 4; I++) {
-        WRITE_MENU(I);
-      }
-      INVERSE_ON();
-      WRITE_MENU(POS);
-      INVERSE_OFF();
-      inner_loop();
-      function inner_loop() {
-        READKEY().then(function(c) {
-          C = c;
-          WRITE_MENU(POS);
-          if (C == CHR(0)) {
-            WRITE('!');
-            READKEY().then(function(C) {
-              if (C == 'P') {
-                POS = (POS + 1) % 5;
-              }
-              if (C == 'H') {
-                POS = (POS + 4) % 5;
-              }
-              cont();
-            });
-            return;
-          }
-          cont();
-          function cont() {
-            INVERSE_ON();
+    return INFO().defer(function() {
+      return repeat_until(function() {
+        INVERSE_OFF();
+        CLRSCR();
+        GOTOXY(33, 7);
+        WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+        GOTOXY(30, 8);
+        WRITE('\u2554\u2550\u2550\u2563 Hauptmen\u00FC \u2560\u2550\u2550\u2557');
+        GOTOXY(30, 9);
+        WRITE('\u2551  \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D  \u2551');
+        GOTOXY(30, 10);
+        WRITE('\u2551                 \u2551');
+        GOTOXY(30, 11);
+        WRITE('\u2551                 \u2551');
+        GOTOXY(30, 12);
+        WRITE('\u2551                 \u2551');
+        GOTOXY(30, 13);
+        WRITE('\u2551                 \u2551');
+        GOTOXY(30, 14);
+        WRITE('\u2551                 \u2551');
+        GOTOXY(30, 15);
+        WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+        for (I = 0; I <= 4; I++) {
+          WRITE_MENU(I);
+        }
+        INVERSE_ON();
+        WRITE_MENU(POS);
+        INVERSE_OFF();
+        return repeat_until(function() {
+          return READKEY().defer(function(c) {
+            var f = new ImmediateFuture();
+            C = c;
             WRITE_MENU(POS);
-            INVERSE_OFF();
-            if (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10))) {
-              inner_loop();
-            } else {
-              inner_cont();
+            if (C == CHR(0)) {
+              WRITE('!');
+              f = READKEY().then(function(C) {
+                if (C == 'P') {
+                  POS = (POS + 1) % 5;
+                }
+                if (C == 'H') {
+                  POS = (POS + 4) % 5;
+                }
+              });
             }
-          }
-        });
-      }
-      function inner_cont() {
-        if (C == CHR(27)) {
-          OUT = true;
-        } else {
-          switch (POS) {
-          case 0:
-            if (C != CHR(10)) {
-              INFO().then(cont);
-            } else {
-              EASTER_EGG(cont);
-            }
-            return;
-          case 1:
-            NEW_GAME().then(cont);
-            return;
-          case 2:
-            SHOW_HIGHSCORES().then(cont);
-            return;
-          case 3:
-            SETUP_OPTIONS(cont);
-            return;
-          case 4:
+            return f.then(function() {
+              INVERSE_ON();
+              WRITE_MENU(POS);
+              INVERSE_OFF();
+            });
+          });
+        }, function() {
+          return (C == CHR(13)) || (C == CHR(27)) || (C == CHR(10));
+        }).defer(function() {
+          var f = new ImmediateFuture();
+          if (C == CHR(27)) {
             OUT = true;
-            break;
-          }
-        }
-        cont();
-        function cont() {
-          if (!OUT) {
-            loop();
           } else {
-            outer_cont();
+            switch (POS) {
+              case 0:
+                if (C != CHR(10)) {
+                  f = INFO();
+                } else {
+                  f = EASTER_EGG();
+                }
+                break;
+              case 1:
+                f = NEW_GAME();
+                break;
+              case 2:
+                f = SHOW_HIGHSCORES();
+                break;
+              case 3:
+                f = SETUP_OPTIONS();
+                break;
+              case 4:
+                OUT = true;
+                break;
+              }
           }
-        }
-      }
-    }
-    function outer_cont() {
+          return f;
+        });
+      }, function() {
+        return OUT;
+      });
+    }).then(function() {
       TEXTCOLOR(LIGHTGRAY);
       TEXTBACKGROUND(BLACK);
       CLRSCR();
@@ -1200,7 +1162,7 @@ var main = (function() {
       // CHECKBREAK = true;
       // TEXTMODE(OLD_MODE);
       // WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
-    }
+    });
   }
   return main;
 })();

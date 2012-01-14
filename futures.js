@@ -67,12 +67,12 @@ function TimedFuture(timeout) {
 }
 extend(TimedFuture, Future);
 
-function do_while(body, condition) {
+function repeat_until(body, condition) {
   return body().defer(function() {
     if (condition()) {
-      return do_while(body, condition);
-    } else {
       return new ImmediateFuture();
+    } else {
+      return repeat_until(body, condition);
     }
   });
 }
