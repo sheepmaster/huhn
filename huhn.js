@@ -748,7 +748,7 @@ var main = (function() {
     INVERSE_OFF();
     I = 999;
     return repeat_until(function() {
-      set_colo_screen_attr(I, RANDOM(16));
+      setColoScreenAttr(I, RANDOM(16));
       I = (I - 997) % 4 + 998;
       return new AnimationFuture();
     }, function() {

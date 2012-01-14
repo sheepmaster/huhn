@@ -44,8 +44,6 @@ Terminal.prototype.keysPressed = function(s) {
     case '\x7F':
         s = '\x08';  // backspace
         break;
-    }
-  // console.log('\'' + s + '\'');
     case '\u001B':  // escape
         break;
     default:
@@ -187,14 +185,14 @@ function HIGHVIDEO() {
 }
 
 function updateStyleRule(stylesheet, selector, style) {
-  for (var i = 0; i < stylesheet.rules.length; i++) {
-    var rule = stylesheet.rules[i];
+  for (var i = 0; i < stylesheet.cssRules.length; i++) {
+    var rule = stylesheet.cssRules[i];
     if (rule.selectorText == selector) {
       rule.style.cssText = style;
       return;
     }
   }
-  stylesheet.insertRule(selector + ' { ' + style + ' } ');
+  stylesheet.insertRule(selector + ' { ' + style + ' } ', 0);
 }
 
 function setColoScreenAttr(index, attr) {
