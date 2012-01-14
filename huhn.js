@@ -746,17 +746,21 @@ var main = (function() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
-    // I = 999;
-    // do {
-    //   COLO_SCREEN[I].ATTR = COLO_SCREEN[I].ATTR / 16 * 16 + RANDOM(16);
-    //   I = (I - 997) % 4 + 998;
-    // } while (!KEYPRESSED());
-    return READKEY().defer(function(C) {
-      var f2 = new ImmediateFuture();
-      if (C == CHR(0))
-        f2 = READKEY();
-      return f2;
-    });
+    I = 999;
+    return repeat_until(function() {
+      set_colo_screen_attr(I, RANDOM(16));
+      I = (I - 997) % 4 + 998;
+      return new AnimationFuture();
+    }, function() {
+      return KEYPRESSED();
+    }).defer(function() {
+      return READKEY().defer(function(C) {
+        var f2 = new ImmediateFuture();
+        if (C == CHR(0))
+          f2 = READKEY();
+        return f2;
+      });
+    })
   }
 
   function EASTER_EGG() {

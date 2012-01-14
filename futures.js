@@ -67,6 +67,15 @@ function TimedFuture(timeout) {
 }
 extend(TimedFuture, Future);
 
+var requestAnimationFrame_ = window.webkitRequestAnimationFrame ||
+                             window.mozRequestAnimationFrame ||
+                             window.msRequestAnimationFrame;
+function AnimationFuture() {
+  this.superClass.constructor.call(this);
+  requestAnimationFrame_(this.fulfill.bind(this));
+}
+extend(AnimationFuture, Future);
+
 function repeat_until(body, condition) {
   return body().defer(function() {
     if (condition()) {
