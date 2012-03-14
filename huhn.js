@@ -1,12 +1,12 @@
 var main = (function() {
   /* PROGRAM NAME: TOETE_DAS_HUHN_UND_SPEISE_ES_MIT_EINER_SAFTIGEN_SOSSE */
-  const BLACK = 0;
-  const LIGHTGRAY = 7;
-  const LIGHTGREEN = 10;
-  const WHITE = 15;
+  var BLACK = 0;
+  var LIGHTGRAY = 7;
+  var LIGHTGREEN = 10;
+  var WHITE = 15;
 
   function LASTMODE() {}
-  const COLOR_SCREEN = true;
+  var COLOR_SCREEN = true;
 
   function CHR(c) {
     return String.fromCharCode(c);
@@ -47,8 +47,8 @@ var main = (function() {
     }
   }
 
-  const MAX_ENTRIES = 9;
-  const ONE = 1;
+  var MAX_ENTRIES = 9;
+  var ONE = 1;
   function ENTRY_TYPE() {
   }
   ENTRY_TYPE.prototype = {
@@ -307,17 +307,17 @@ var main = (function() {
   }
 
   function NEW_GAME() {
-    const MAX_AUTOS = 30;
-    const START_DELAY = 110;
-    const SPEED_FACTOR = .977;
-    const TOP = 10;
-    const BOTTOM = 16;
-    const LEFT = 24;
-    const RIGHT = 56;
-    const START_BONUS = 10000;
-    const REDUCTION = 50;
-    const PROBS = [.01, .0, 7.5, 2.5, 1.0, 9.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 1.0, 1.0, 2.5, 2.5, 7.5, .0, .0, .0, .0, .001];
-    const PROBSUM = 42.011;
+    var MAX_AUTOS = 30;
+    var START_DELAY = 110;
+    var SPEED_FACTOR = .977;
+    var TOP = 10;
+    var BOTTOM = 16;
+    var LEFT = 24;
+    var RIGHT = 56;
+    var START_BONUS = 10000;
+    var REDUCTION = 50;
+    var PROBS = [.01, .0, 7.5, 2.5, 1.0, 9.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 1.0, 1.0, 2.5, 2.5, 7.5, .0, .0, .0, .0, .001];
+    var PROBSUM = 42.011;
     function COORD() {
     }
     COORD.prototype = {
