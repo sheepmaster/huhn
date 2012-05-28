@@ -134,7 +134,7 @@ var main = (function() {
           S = DELETE(S, LENGTH(S), 1);
           WRITE(CHR(8), ' ', CHR(8));
         };
-        var f2 = new ImmediateFuture();
+        var f2 = Observable.now();
         if (C == CHR(0)) {
           f2 = READKEY().then(function(c) {
             C = c;
@@ -151,7 +151,7 @@ var main = (function() {
         ST = '';
       };
       CURSOR_OFF();
-      return new ImmediateFuture(ST);
+      return Observable.return(ST);
     });
   }
 
@@ -215,7 +215,7 @@ var main = (function() {
     //   } while (!KEYPRESSED());
     // }
     return READKEY().defer(function(C) {
-      var f2 = new ImmediateFuture();
+      var f2 = Observable.now();
       if (C == CHR(0))
         f2 = READKEY();
       return f2.then(function(C) {
@@ -225,7 +225,7 @@ var main = (function() {
   }
 
   function PUT_IN_HIGHSCORE(SCOR, LVL) {
-    var f = new ImmediateFuture();
+    var f = Observable.now();
     var I, J;
     var NAME;
     var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -351,7 +351,7 @@ var main = (function() {
     }
 
     function WAIT(MIL) {
-      return new TimedFuture(MIL);
+      return Observable.timer(MIL);
       // var I, J = new Number();
       // var ST, MI, SE, HU = new WORD();
       // var TIME2 = new LONGINT();
@@ -363,7 +363,7 @@ var main = (function() {
     }
 
     function CALIBRATE() {
-      return new TimedFuture(PRESENT_DELAY * 10);
+      return Observable.timer(PRESENT_DELAY * 10);
       // var ST, MI, SE, HU = new WORD();
       // var TIME, TIME2, INT = new LONGINT();
       // INT = 0;
@@ -498,7 +498,7 @@ var main = (function() {
     }
 
     function TOT() {
-      var f = new ImmediateFuture();
+      var f = Observable.now();
       if (OPTIONS.BEEP) {
         BEEP();
       }
@@ -519,7 +519,7 @@ var main = (function() {
     }
 
     function VORWAERTS_MARSCH() {
-      var f = new ImmediateFuture();
+      var f = Observable.now();
       var I, P;
       var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
       SPLAT = false;
@@ -682,7 +682,7 @@ var main = (function() {
         }
         return update();
         function update() {
-          var f = new ImmediateFuture();
+          var f = Observable.now();
           if (HUHN.X < LEFT) {
             HUHN.X++;
           }
@@ -750,12 +750,12 @@ var main = (function() {
     return repeat_until(function() {
       setColoScreenAttr(I, RANDOM(16));
       I = (I - 997) % 4 + 998;
-      return new AnimationFuture();
+      return Observable.requestAnimationFrame();
     }, function() {
       return KEYPRESSED();
     }).defer(function() {
       return READKEY().defer(function(C) {
-        var f2 = new ImmediateFuture();
+        var f2 = Observable.now();
         if (C == CHR(0))
           f2 = READKEY();
         return f2;
@@ -795,7 +795,7 @@ var main = (function() {
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
     return READKEY().defer(function(C) {
-      var f = new ImmediateFuture();
+      var f = Observable.now();
       if (C == CHR(0)) {
         f = READKEY();
       }
@@ -969,7 +969,7 @@ var main = (function() {
       WRITE_TEXT();
       return repeat_until(function() {
         return READKEY().defer(function(c) {
-          var f = new ImmediateFuture();
+          var f = Observable.now();
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
@@ -1100,7 +1100,7 @@ var main = (function() {
         INVERSE_OFF();
         return repeat_until(function() {
           return READKEY().defer(function(c) {
-            var f = new ImmediateFuture();
+            var f = Observable.now();
             C = c;
             WRITE_MENU(POS);
             if (C == CHR(0)) {
@@ -1123,7 +1123,7 @@ var main = (function() {
         }, function() {
           return (C == CHR(13)) || (C == CHR(27)) || (C == CHR(10));
         }).defer(function() {
-          var f = new ImmediateFuture();
+          var f = Observable.now();
           if (C == CHR(27)) {
             OUT = true;
           } else {
