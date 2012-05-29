@@ -9,6 +9,7 @@ function extend(subClass, baseClass) {
 function Observable() {
 }
 
+// XXX: Pre-bind subscribe()?
 Observable.prototype.subscribe = function(subscriber) {
   function empty() {}
   if (!subscriber.next)
@@ -17,14 +18,45 @@ Observable.prototype.subscribe = function(subscriber) {
     subscriber.completed = empty;
   if (!subscriber.error)
     subscriber.error = empty;
-  this.didSubscribe_(subscriber);
+  return this.didSubscribe_(subscriber);
 };
 
-Observable.prototype.then = function(f) {
-  this.subscribe({
-    'completed': f
+// TODO: Implement in terms of select?
+Observable.prototype.then = function(resolveCallback, rejectCallback) {
+  if (!resolveCallback) {
+    resolveCallback = function(value) {
+      return value;
+    };
+  }
+  if (!rejectCallback) {
+    rejectCallback = function(reason) {
+      return Observable.error(reason);
+    };
+  }
+  var value;
+  var result = Promise.defer();  // XXX: Use underlying implementation instead?
+  self.subscribe({
+    next: function(v) {
+      if (typeof value !== 'undefined')
+        throw new Error('Trying to fulfill a promise more than once');
+      value = v;
+    },
+    completed: function() {
+      try {
+        result.resolve(resolveCallback(value));
+      } catch (e) {
+        result.reject(e);
+      }
+    },
+    error: function(error) {
+      try {
+        result.resolve(rejectCallback(error));
+      } catch (e) {
+        result.reject(e);
+      }
+    },
   });
-  return this;
+  return result.promise;
 };
 
 Observable.withCallback = function(callback) {
@@ -43,7 +75,6 @@ Observable.return = function(value) {
   return Observable.withCallback(function(subscriber) {
     subscriber.next(value);
     subscriber.completed();
-    return function() {};
   });
 };
 
@@ -196,4 +227,38 @@ function repeat_until(body, condition) {
     });
   }
   return f;
+}
+
+
+function Promise() {
+}
+
+Promise.defer = function() {
+  // if the promise is unresolved, |pendingSubscribers| is an array that holds
+  // the pending subscribers, otherwise it is undefined.
+  var pendingSubscribers = [];
+  var value;
+  function dispatch(v) {
+    // Ignore all resolutions after the first one.
+    if (!pendingSubscribers)
+      return;
+    value = v;
+    pendingSubscribers.forEach(v.subscribe.bind(v));
+    pendingSubscribers = undefined;
+  }
+  return {
+    resolve: function(v) {
+      // XXX: Don't box promises?
+      dispatch(Observable.return(v));
+    },
+    reject: function(reason) {
+      dispatch(Observable.error(reason));
+    },
+    promise: Observable.withCallback(function(subscriber) {
+      if (pendingSubscribers)
+        pendingSubscribers.push(subscriber);
+      else
+        dispatchResolved()
+    });
+  };
 }
