@@ -9,7 +9,7 @@ function extend(subClass, baseClass) {
 function Observable() {
 }
 
-// XXX: Pre-bind subscribe()?
+// TODO: Pre-bind subscribe()?
 Observable.prototype.subscribe = function(subscriber) {
   function empty() {}
   if (!subscriber.next)
@@ -33,17 +33,15 @@ Observable.prototype.then = function(resolveCallback, rejectCallback) {
       return Observable.error(reason);
     };
   }
-  var value;
-  var result = Promise.defer();  // XXX: Use underlying implementation instead?
+  var values = [];
+  var result = Promise.defer();  // TODO: Use underlying implementation instead?
   self.subscribe({
     next: function(v) {
-      if (typeof value !== 'undefined')
-        throw new Error('Trying to fulfill a promise more than once');
-      value = v;
+      values.push(v);
     },
     completed: function() {
       try {
-        result.resolve(resolveCallback(value));
+        result.resolve(resolveCallback.apply(null, values));
       } catch (e) {
         result.reject(e);
       }
@@ -229,6 +227,28 @@ function repeat_until(body, condition) {
   return f;
 }
 
+if (typeof MessageChannel !== "undefined") {
+    // modern browsers
+    // http://www.nonblocking.io/2011/06/windownexttick.html
+    var channel = new MessageChannel();
+    // linked list of tasks (single, with head node)
+    var head = {}, tail = head;
+    channel.port1.onmessage = function () {
+        head = head.next;
+        var task = head.task;
+        delete head.task;
+        task();
+    };
+    nextTick = function (task) {
+        tail = tail.next = {task: task};
+        channel.port2.postMessage(0);
+    };
+} else {
+    // old browsers
+    nextTick = function (task) {
+        setTimeout(task, 0);
+    };
+}
 
 function Promise() {
 }
@@ -242,23 +262,34 @@ Promise.defer = function() {
     // Ignore all resolutions after the first one.
     if (!pendingSubscribers)
       return;
+    
     value = v;
-    pendingSubscribers.forEach(v.subscribe.bind(v));
+    var pending = pendingSubscribers;
     pendingSubscribers = undefined;
+    nextTick(function() {
+      pending.forEach(v.subscribe.bind(v));
+    })
   }
   return {
     resolve: function(v) {
-      // XXX: Don't box promises?
-      dispatch(Observable.return(v));
+      dispatch(Promise.resolve(v));
     },
     reject: function(reason) {
       dispatch(Observable.error(reason));
     },
+    // TODO: Pre-bind then()?
     promise: Observable.withCallback(function(subscriber) {
       if (pendingSubscribers)
         pendingSubscribers.push(subscriber);
       else
-        dispatchResolved()
+        dispatch(value);
     });
   };
-}
+};
+
+Promise.resolve = function(v) {
+  if (v && typeof v.next === 'function')
+    return v;
+
+  return Observable.return(v);
+};
