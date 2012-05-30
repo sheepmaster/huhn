@@ -57,8 +57,8 @@ Terminal.prototype.keysPressed = function(s) {
     return f;
   }
   s.split('').forEach(function(key) {
-    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture(new Future());
-    f.fulfill(key);
+    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture(Promise.defer());
+    f.resolve(key);
   });
   return false;
 };
@@ -71,7 +71,8 @@ Terminal.prototype.crtReadKey = function() {
     that.unfulfilledFutures_.push(f);
     return f;
   }
-  return this.fulfilledFutures_.shift() || pushUnfulfilledFuture(new Future());
+  var future = this.fulfilledFutures_.shift() || pushUnfulfilledFuture(Promise.defer());
+  return future.promise;
 };
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));

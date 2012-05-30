@@ -115,7 +115,7 @@ var main = (function() {
     S = ST;
     WRITE(S);
     return repeat_until(function() {
-      return READKEY().defer(function(c) {
+      return READKEY().then(function(c) {
         C = c;
         var accepted_keys = {};
         var start = (' ').charCodeAt(0);
@@ -129,29 +129,29 @@ var main = (function() {
         if (accepted_keys[C] && (LENGTH(S) < 20)) {
           S = CONCAT(S, C);
           WRITE(C);
-        };
+        }
         if ((C == CHR(8)) && (LENGTH(S) > 0)) {
           S = DELETE(S, LENGTH(S), 1);
           WRITE(CHR(8), ' ', CHR(8));
-        };
-        var f2 = Observable.now();
+        }
+        var f2;
         if (C == CHR(0)) {
           f2 = READKEY().then(function(c) {
             C = c;
           });
-        };
+        }
         return f2;
       });
     }, function() {
       return (C == CHR(13) || C == CHR(27));
-    }).defer(function() {
+    }).then(function() {
       if (C == CHR(13)) {
         ST = S;
       } else {
         ST = '';
       };
       CURSOR_OFF();
-      return Observable.return(ST);
+      return ST;
     });
   }
 
@@ -214,7 +214,7 @@ var main = (function() {
     //     I = I % 2000 + 1;
     //   } while (!KEYPRESSED());
     // }
-    return READKEY().defer(function(C) {
+    return READKEY().then(function(C) {
       var f2 = Observable.now();
       if (C == CHR(0))
         f2 = READKEY();
@@ -249,7 +249,7 @@ var main = (function() {
       GOTOXY(26, 9 + I);
       WRITE('                    ');
       GOTOXY(26, 9 + I);
-      f = READ_IN(NAME).defer(function(NAME) {
+      f = READ_IN(NAME).then(function(NAME) {
         NEWHIGHSCORES[I].NAME = NAME;
         if (NAME != '') {
           update(HIGHSCORES, NEWHIGHSCORES);
@@ -585,7 +585,7 @@ var main = (function() {
         });
       }, function() {
         return (I < 0);
-      }).defer(function() {
+      }).then(function() {
         return WAIT(500).then(function() {
           INVERSE_OFF();
         });
@@ -596,7 +596,7 @@ var main = (function() {
     CENTERED(25, '                               Bitte warten...                                 ');
     PRESENT_DELAY = START_DELAY;
     FAC = 500;
-    return CALIBRATE().defer(function() {
+    return CALIBRATE().then(function() {
       GOTOXY(47, 25);
       WRITE('OK.');
       INVERSE_OFF();
@@ -611,15 +611,15 @@ var main = (function() {
     }
 
     function step() {
-      return WAIT(PRESENT_DELAY).defer(function() {
+      return WAIT(PRESENT_DELAY).then(function() {
         GOTOXY(HUHN.X, HUHN.Y);
         WRITE(' ');
         if (KEYPRESSED()) {
           KEY = true;
-          return READKEY().defer(function(CH) {
+          return READKEY().then(function(CH) {
             switch (CH) {
               case '\0':
-                return READKEY().defer(function(CH) {
+                return READKEY().then(function(CH) {
                   switch (CH) {
                     case 'K':
                       HUHN.X--;
@@ -640,7 +640,7 @@ var main = (function() {
               case ' ':
                 INVERSE_ON();
                 CENTERED(25, '***PAUSE***');
-                return READKEY().defer(function(CH) {
+                return READKEY().then(function(CH) {
                   GOTOXY(21, 25);
                   WRITE('Warum ging das Huhn \u00FCber die Autobahn?');
                   INVERSE_OFF();
@@ -652,7 +652,7 @@ var main = (function() {
                 CENTERED(25, 'Wollen Sie das Spiel wirklich beenden[J/N]?');
 
                 function loop() {
-                  return READKEY().defer(function(C) {
+                  return READKEY().then(function(C) {
                     var keys = {
                       'J': true,
                       'j': true,
@@ -695,11 +695,11 @@ var main = (function() {
           if (HUHN.Y < TOP) {
             f = GESCHAFFT();
           }
-          return f.defer(function() {
+          return f.then(function() {
             GOTOXY(HUHN.X, HUHN.Y);
             INVERSE_OFF();
             WRITE('#');
-            return VORWAERTS_MARSCH().defer(function() {
+            return VORWAERTS_MARSCH().then(function() {
               INVERSE_OFF();
               BONUS2 = MAX(BONUS2 - REDUCTION, 0);
               GOTOXY(RIGHT - 4, BOTTOM + 3);
@@ -708,7 +708,7 @@ var main = (function() {
                 return step();
               if (!GAME_OVER)
                 return start_level();
-              return HAEMISCH_LACHEN().defer(function() {
+              return HAEMISCH_LACHEN().then(function() {
                 CLRSCR();
                 return PUT_IN_HIGHSCORE(SCORE, LEVL);
               });
@@ -753,9 +753,9 @@ var main = (function() {
       return Observable.requestAnimationFrame();
     }, function() {
       return KEYPRESSED();
-    }).defer(function() {
-      return READKEY().defer(function(C) {
-        var f2 = Observable.now();
+    }).then(function() {
+      return READKEY().then(function(C) {
+        var f2;
         if (C == CHR(0))
           f2 = READKEY();
         return f2;
@@ -794,8 +794,8 @@ var main = (function() {
     INVERSE_ON();
     CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
     INVERSE_OFF();
-    return READKEY().defer(function(C) {
-      var f = Observable.now();
+    return READKEY().then(function(C) {
+      var f;
       if (C == CHR(0)) {
         f = READKEY();
       }
@@ -968,7 +968,7 @@ var main = (function() {
       INVERSE_OFF();
       WRITE_TEXT();
       return repeat_until(function() {
-        return READKEY().defer(function(c) {
+        return READKEY().then(function(c) {
           var f = Observable.now();
           C = c;
           WRITE_MENU(POS);
@@ -1070,7 +1070,7 @@ var main = (function() {
     LOAD_HIGHSCORES_AND_OPTIONS();
     INVERSE_OFF();
     CLRSCR();
-    return INFO().defer(function() {
+    return INFO().then(function() {
       return repeat_until(function() {
         INVERSE_OFF();
         CLRSCR();
@@ -1099,7 +1099,7 @@ var main = (function() {
         WRITE_MENU(POS);
         INVERSE_OFF();
         return repeat_until(function() {
-          return READKEY().defer(function(c) {
+          return READKEY().then(function(c) {
             var f = Observable.now();
             C = c;
             WRITE_MENU(POS);
@@ -1122,8 +1122,8 @@ var main = (function() {
           });
         }, function() {
           return (C == CHR(13)) || (C == CHR(27)) || (C == CHR(10));
-        }).defer(function() {
-          var f = Observable.now();
+        }).then(function() {
+          var f;
           if (C == CHR(27)) {
             OUT = true;
           } else {

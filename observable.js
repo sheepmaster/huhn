@@ -35,7 +35,7 @@ Observable.prototype.then = function(resolveCallback, rejectCallback) {
   }
   var values = [];
   var result = Promise.defer();  // TODO: Use underlying implementation instead?
-  self.subscribe({
+  this.subscribe({
     next: function(v) {
       values.push(v);
     },
@@ -69,6 +69,7 @@ Observable.now = function() {
   });
 };
 
+// TODO: allow multiple values?
 Observable.return = function(value) {
   return Observable.withCallback(function(subscriber) {
     subscriber.next(value);
@@ -212,42 +213,28 @@ Future.prototype.defer = function(f) {
   });
   return future;
 };
-function repeat_until(body, condition) {
-  var f = new Future();
-  loop();
-  function loop() {
-    body().then(function() {
-      if (condition()) {
-        f.fulfill();
-      } else {
-        loop();
-      }
-    });
-  }
-  return f;
-}
-
+var nextTick;
 if (typeof MessageChannel !== "undefined") {
-    // modern browsers
-    // http://www.nonblocking.io/2011/06/windownexttick.html
-    var channel = new MessageChannel();
-    // linked list of tasks (single, with head node)
-    var head = {}, tail = head;
-    channel.port1.onmessage = function () {
-        head = head.next;
-        var task = head.task;
-        delete head.task;
-        task();
-    };
-    nextTick = function (task) {
-        tail = tail.next = {task: task};
-        channel.port2.postMessage(0);
-    };
+  // modern browsers
+  // http://www.nonblocking.io/2011/06/windownexttick.html
+  var channel = new MessageChannel();
+  // linked list of tasks (single, with head node)
+  var head = {}, tail = head;
+  channel.port1.onmessage = function () {
+    head = head.next;
+    var task = head.task;
+    delete head.task;
+    task();
+  };
+  nextTick = function (task) {
+    tail = tail.next = {task: task};
+    channel.port2.postMessage(0);
+  };
 } else {
-    // old browsers
-    nextTick = function (task) {
-        setTimeout(task, 0);
-    };
+  // old browsers
+  nextTick = function (task) {
+    setTimeout(task, 0);
+  };
 }
 
 function Promise() {
@@ -262,7 +249,7 @@ Promise.defer = function() {
     // Ignore all resolutions after the first one.
     if (!pendingSubscribers)
       return;
-    
+
     value = v;
     var pending = pendingSubscribers;
     pendingSubscribers = undefined;
@@ -279,11 +266,15 @@ Promise.defer = function() {
     },
     // TODO: Pre-bind then()?
     promise: Observable.withCallback(function(subscriber) {
-      if (pendingSubscribers)
+      if (pendingSubscribers) {
         pendingSubscribers.push(subscriber);
-      else
-        dispatch(value);
-    });
+      } else {
+        nextTick(function() {
+          value.subscribe(subscriber);
+        });
+      }
+      // XXX: disposalCallback?
+    })
   };
 };
 
@@ -293,3 +284,28 @@ Promise.resolve = function(v) {
 
   return Observable.return(v);
 };
+
+// function repeat_until(body, condition) {
+//   var f = Promise.defer();
+//   loop();
+//   function loop() {
+//     body().then(function() {
+//       if (condition()) {
+//         f.resolve();
+//       } else {
+//         loop();
+//       }
+//     });
+//   }
+//   return f.promise;
+// }
+
+function repeat_until(body, condition) {
+  function loop() {
+    return body().then(function() {
+      if (!condition())
+        return loop();
+    });
+  }
+  return loop();
+}
