@@ -221,6 +221,7 @@ Future.prototype.defer = function(f) {
   });
   return future;
 };
+
 var nextTick;
 if (typeof MessageChannel !== "undefined") {
   // modern browsers
@@ -287,7 +288,7 @@ Promise.defer = function() {
 };
 
 Promise.resolve = function(v) {
-  if (v && typeof v.next === 'function')
+  if (v && typeof v.then === 'function')
     return v;
 
   return Observable.return(v);
