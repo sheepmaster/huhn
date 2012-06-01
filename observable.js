@@ -77,6 +77,12 @@ Observable.return = function(value) {
   });
 };
 
+Observable.error = function(reason) {
+  return Observable.withCallback(function(subscriber) {
+    subscriber.error(reason);
+  });
+};
+
 Observable.timer = function(interval) {
   return Observable.withCallback(function(subscriber) {
     var id = window.setTimeout(subscriber.completed.bind(subscriber), interval);
