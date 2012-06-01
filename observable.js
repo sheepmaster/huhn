@@ -69,10 +69,12 @@ Observable.now = function() {
   });
 };
 
-// TODO: allow multiple values?
-Observable.return = function(value) {
+Observable.return = function() {
+  var args = arrayify(arguments);
   return Observable.withCallback(function(subscriber) {
-    subscriber.next(value);
+    args.forEach(function(arg) {
+      subscriber.next(arg);
+    });
     subscriber.completed();
   });
 };
