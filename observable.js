@@ -171,52 +171,22 @@ ReplaySubject.prototype.completed = function() {
 };
 
 
-function Future() {
-  ReplaySubject.prototype.constructor.call(this);
+function BehaviorSubject() {
+  Subject.prototype.constructor.call(this);
 }
-extend(Future, ReplaySubject);
+extend(BehaviorSubject, Subject);
 
-Future.prototype.isFulfilled = function() {
-  return this.values_.length > 0;
+BehaviorSubject.prototype.didSubscribe_ = function(observer) {
+  if (typeof this.value != 'undefined') {
+    observer.next(this.value);
+  }
 };
 
-Future.prototype.next = function(value) {
-  if (this.isFulfilled())
-    throw new Error('Future is already fulfilled');
-
-  ReplaySubject.prototype.next.call(this, value);
+BehaviorSubject.prototype.next = function(value) {
+  this.value = value;
+  Subject.prototype.next.call(this, value);
 };
 
-Future.prototype.completed = function() {
-  ReplaySubject.prototype.completed.call(this);
-
-  // Clear the list of observers, because we're not going to need them any more.
-  this.observers_ = [];
-};
-
-function arrayify(args) {
-  return Array.prototype.slice.apply(args);
-}
-
-Future.prototype.fulfill = function() {
-  arrayify(arguments).forEach(this.next.bind(this));
-  this.completed();
-};
-
-Future.prototype.pipe = function(future) {
-  this.then(function() {
-    future.fulfill.apply(future, arguments);
-  });
-};
-Future.prototype.defer = function(f) {
-  var future = new Future();
-  this.then(function() {
-    f.apply(null, arguments).then(function() {
-      future.fulfill.apply(future, arguments);
-    });
-  });
-  return future;
-};
 
 var nextTick;
 if (typeof MessageChannel !== "undefined") {
