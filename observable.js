@@ -53,6 +53,32 @@ Observable.prototype.then = function(resolveCallback, rejectCallback) {
   return result.promise;
 };
 
+Observable.prototype.distinctUntilChanged = function(eq) {
+  if (!eq) {
+    eq = function(a, b) {
+      return (a === b);
+    };
+  }
+  var self = this;
+  var oldValue;
+  return Observable.withCallback(function(subscriber) {
+    return self.subscribe({
+      'next': function(value) {
+        if (!eq(value, oldValue)) {
+          subscriber.next(value);
+        }
+        oldValue = value;
+      },
+      'completed': function() {
+        subscriber.completed();
+      },
+      'error': function(reason) {
+        subscriber.error(reason);
+      }
+    });
+  });
+};
+
 Observable.withCallback = function(callback) {
   var o = new Observable();
   o.didSubscribe_ = callback;
