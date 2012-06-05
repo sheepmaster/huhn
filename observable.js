@@ -118,11 +118,19 @@ function removeFromList(list, el) {
 }
 
 Subject.prototype.didSubscribe_ = function(observer) {
+  if (this.isCompleted_) {
+    observer.completed();
+    return;
+  }
+
+  if (this.error_) {
+    observer.error(reason);
+    return;
+  }
+
   var observers = this.observers_;
   observers.push(observer);
-  return function() {
-    removeFromList(observers);
-  };
+  return removeFromList.bind(null, observers);
 };
 
 Subject.prototype.next = function(value) {
@@ -132,16 +140,20 @@ Subject.prototype.next = function(value) {
 };
 
 Subject.prototype.completed = function() {
+  this.isCompleted_ = true;
   this.observers_.forEach(function(observer) {
     observer.completed();
+    // XXX: dispatch via didSubscribe_?
   });
+  delete this.observers_;
 };
 
-Subject.prototype.error = function() {
+Subject.prototype.error = function(reason) {
+  this.error_ = reason;
   this.observers_.forEach(function(observer) {
-    if (typeof observer != 'function')
-      observer.error(value);
+    observer.error(reason);
   });
+  delete this.observers_;
 };
 
 
@@ -155,19 +167,12 @@ ReplaySubject.prototype.didSubscribe_ = function(observer) {
   this.values_.forEach(function(value) {
     observer.next(value);
   });
-  if (this.isCompleted_)
-    observer.completed();
   return Subject.prototype.didSubscribe_.call(this, observer);
-}
+};
 
 ReplaySubject.prototype.next = function(value) {
   this.values_.push(value);
   Subject.prototype.next.call(this, value);
-}
-
-ReplaySubject.prototype.completed = function() {
-  Subject.prototype.completed.call(this);
-  this.isCompleted_ = true;
 };
 
 
