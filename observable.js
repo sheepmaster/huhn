@@ -1,9 +1,5 @@
 function extend(subClass, baseClass) {
-  function inheritance() { }
-  inheritance.prototype          = baseClass.prototype;
-  subClass.prototype             = new inheritance();
-  subClass.prototype.constructor = subClass;
-  subClass.prototype.superClass  = baseClass.prototype;
+  subClass.prototype = Object.create(baseClass.prototype);
 };
 
 function Observable() {
