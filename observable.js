@@ -129,13 +129,10 @@ Observable.requestAnimationFrame = function() {
 
 
 function Subject() {
-  Observable.prototype.constructor.call(this);
-}
-extend(Subject, Observable);
-
-function Subject() {
+  Observable.call(this);
   this.observers_ = [];
 }
+extend(Subject, Observable);
 
 function removeFromList(list, el) {
   var index = list.indexOf(el);
@@ -184,7 +181,7 @@ Subject.prototype.error = function(reason) {
 
 
 function ReplaySubject() {
-  Subject.prototype.constructor.call(this);
+  Subject.call(this);
   this.values_ = [];
 }
 extend(ReplaySubject, Subject);
@@ -203,7 +200,7 @@ ReplaySubject.prototype.next = function(value) {
 
 
 function BehaviorSubject() {
-  Subject.prototype.constructor.call(this);
+  Subject.call(this);
 }
 extend(BehaviorSubject, Subject);
 
@@ -211,6 +208,7 @@ BehaviorSubject.prototype.didSubscribe_ = function(observer) {
   if (typeof this.value != 'undefined') {
     observer.next(this.value);
   }
+  return Subject.prototype.didSubscribe_.call(this, observer);
 };
 
 BehaviorSubject.prototype.next = function(value) {
