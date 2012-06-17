@@ -92,9 +92,9 @@ Observable.now = function() {
 };
 
 Observable.return = function() {
-  var args = arrayify(arguments);
+  var args = arguments;
   return Observable.withCallback(function(subscriber) {
-    args.forEach(function(arg) {
+    Array.prototype.forEach.call(args, function(arg) {
       subscriber.next(arg);
     });
     subscriber.completed();

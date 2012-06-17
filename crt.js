@@ -1,7 +1,7 @@
 var terminal;
 
 function Terminal() {
-  this.superClass.constructor.call(this);
+  VT100.call(this);
   this.utfEnabled = false;
   this.fulfilledFutures_ = [];
   this.unfulfilledFutures_ = [];
@@ -12,17 +12,17 @@ Terminal.prototype.keyDown = function(e) {
     e.keyCode = 10;
   if (e.metaKey)
     return true;
-  return this.superClass.keyDown.call(this, e);
+  return VT100.prototype.keyDown.call(this, e);
 }
 Terminal.prototype.keyUp = function(e) {
   if (e.metaKey)
     return true;
-  return this.superClass.keyUp.call(this, e);
+  return VT100.prototype.keyUp.call(this, e);
 };
 Terminal.prototype.keyPressed = function(e) {
   if (e.metaKey)
     return true;
-  return this.superClass.keyPressed.call(this, e);
+  return VT100.prototype.keyPressed.call(this, e);
 };
 Terminal.prototype.keysPressed = function(s) {
   switch(s) {
