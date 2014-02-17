@@ -1,5 +1,9 @@
 var terminal;
 
+function extend(subClass, baseClass) {
+  subClass.prototype = Object.create(baseClass.prototype);
+};
+
 function Terminal() {
   VT100.call(this);
   this.utfEnabled = false;
@@ -8,7 +12,7 @@ function Terminal() {
 }
 extend(Terminal, VT100);
 Terminal.prototype.keyDown = function(e) {
-  if (e.keyLocation == 3 && e.keyCode == 13)
+  if (e.location == 3 && e.keyCode == 13)
     e.keyCode = 10;
   if (e.metaKey)
     return true;
@@ -52,12 +56,13 @@ Terminal.prototype.keysPressed = function(s) {
           return;
   }
   var that = this;
-  function pushFulfilledFuture(f) {
+  function pushFulfilledFuture() {
+    var f = Promises.defer();
     that.fulfilledFutures_.push(f);
     return f;
   }
   s.split('').forEach(function(key) {
-    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture(Promise.defer());
+    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture();
     f.resolve(key);
   });
   return false;
@@ -67,11 +72,12 @@ Terminal.prototype.crtKeyPressed = function() {
 };
 Terminal.prototype.crtReadKey = function() {
   var that = this;
-  function pushUnfulfilledFuture(f) {
+  function pushUnfulfilledFuture() {
+    var f = Promises.defer();
     that.unfulfilledFutures_.push(f);
     return f;
   }
-  var future = this.fulfilledFutures_.shift() || pushUnfulfilledFuture(Promise.defer());
+  var future = this.fulfilledFutures_.shift() || pushUnfulfilledFuture();
   return future.promise;
 };
 Terminal.prototype.crtWrite = function() {

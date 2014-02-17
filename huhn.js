@@ -215,7 +215,7 @@ var main = (function() {
     //   } while (!KEYPRESSED());
     // }
     return READKEY().then(function(C) {
-      var f2 = Observable.now();
+      var f2 = Promise.resolve();
       if (C == CHR(0))
         f2 = READKEY();
       return f2.then(function(C) {
@@ -225,7 +225,7 @@ var main = (function() {
   }
 
   function PUT_IN_HIGHSCORE(SCOR, LVL) {
-    var f = Observable.now();
+    var f = Promise.resolve();
     var I, J;
     var NAME;
     var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -351,7 +351,7 @@ var main = (function() {
     }
 
     function WAIT(MIL) {
-      return Observable.timer(MIL);
+      return Promises.timer(MIL);
       // var I, J = new Number();
       // var ST, MI, SE, HU = new WORD();
       // var TIME2 = new LONGINT();
@@ -363,7 +363,7 @@ var main = (function() {
     }
 
     function CALIBRATE() {
-      return Observable.timer(PRESENT_DELAY * 10);
+      return Promises.timer(PRESENT_DELAY * 10);
       // var ST, MI, SE, HU = new WORD();
       // var TIME, TIME2, INT = new LONGINT();
       // INT = 0;
@@ -498,7 +498,7 @@ var main = (function() {
     }
 
     function TOT() {
-      var f = Observable.now();
+      var f = Promise.resolve();
       if (OPTIONS.BEEP) {
         BEEP();
       }
@@ -519,7 +519,7 @@ var main = (function() {
     }
 
     function VORWAERTS_MARSCH() {
-      var f = Observable.now();
+      var f = Promise.resolve();
       var I, P;
       var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
       SPLAT = false;
@@ -682,7 +682,7 @@ var main = (function() {
         }
         return update();
         function update() {
-          var f = Observable.now();
+          var f = Promise.resolve();
           if (HUHN.X < LEFT) {
             HUHN.X++;
           }
@@ -750,7 +750,7 @@ var main = (function() {
     return repeat_until(function() {
       setColoScreenAttr(I, RANDOM(16));
       I = (I - 997) % 4 + 998;
-      return Observable.requestAnimationFrame();
+      return Promises.animationFrame();
     }, function() {
       return KEYPRESSED();
     }).then(function() {
@@ -969,7 +969,7 @@ var main = (function() {
       WRITE_TEXT();
       return repeat_until(function() {
         return READKEY().then(function(c) {
-          var f = Observable.now();
+          var f = Promise.resolve();
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
@@ -1100,7 +1100,7 @@ var main = (function() {
         INVERSE_OFF();
         return repeat_until(function() {
           return READKEY().then(function(c) {
-            var f = Observable.now();
+            var f = Promise.resolve();
             C = c;
             WRITE_MENU(POS);
             if (C == CHR(0)) {
