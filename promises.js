@@ -10,19 +10,6 @@
     });
   }
 
-  function defer() {
-    var savedResolve;
-    var promise = new Promise(function(resolve) {
-      savedResolve = resolve;
-    });
-    return {
-      promise: promise,
-      resolve: function(result) {
-        savedResolve(result);
-      }
-    };
-  }
-
   function now() {
     return {
       then: function(callback) {
@@ -39,7 +26,6 @@
 
   window.Promises = {
     animationFrame: animationFrame,
-    defer: defer,
     now: now,
     timer: timer,
   };

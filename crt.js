@@ -7,8 +7,8 @@ function extend(subClass, baseClass) {
 function Terminal() {
   VT100.call(this);
   this.utfEnabled = false;
-  this.fulfilledFutures_ = [];
-  this.unfulfilledFutures_ = [];
+  this.promises_ = [];
+  this.resolvers_ = [];
 }
 extend(Terminal, VT100);
 Terminal.prototype.keyDown = function(e) {
@@ -56,29 +56,25 @@ Terminal.prototype.keysPressed = function(s) {
           return;
   }
   var that = this;
-  function pushFulfilledFuture() {
-    var f = Promises.defer();
-    that.fulfilledFutures_.push(f);
-    return f;
-  }
   s.split('').forEach(function(key) {
-    var f = that.unfulfilledFutures_.shift() || pushFulfilledFuture();
-    f.resolve(key);
+    var f = that.resolvers_.shift();
+    if (f) {
+      f(key);
+      return;
+    }
+
+    that.promises_.push(Promise.resolve(key));
   });
   return false;
 };
 Terminal.prototype.crtKeyPressed = function() {
-  return this.fulfilledFutures_.length > 0;
+  return this.promises_.length > 0;
 };
 Terminal.prototype.crtReadKey = function() {
   var that = this;
-  function pushUnfulfilledFuture() {
-    var f = Promises.defer();
-    that.unfulfilledFutures_.push(f);
-    return f;
-  }
-  var future = this.fulfilledFutures_.shift() || pushUnfulfilledFuture();
-  return future.promise;
+  return this.promises_.shift() || new Promise(function(resolve) {
+    that.resolvers_.push(resolve);
+  });
 };
 Terminal.prototype.crtWrite = function() {
   this.vt100(Array.prototype.join.call(arguments, ''));
