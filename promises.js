@@ -23,6 +23,14 @@
     };
   }
 
+  function now() {
+    return {
+      then: function(callback) {
+        return callback();
+      }
+    };
+  }
+
   function timer(interval) {
     return new Promise(function(resolve) {
       window.setTimeout(resolve, interval);
@@ -32,6 +40,7 @@
   window.Promises = {
     animationFrame: animationFrame,
     defer: defer,
+    now: now,
     timer: timer,
   };
 
