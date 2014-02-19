@@ -47,3 +47,6 @@ function repeat_until(body, condition) {
   return loop();
 }
 
+function handle_error(error) {
+  throw error;
+}

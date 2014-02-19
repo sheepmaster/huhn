@@ -1166,7 +1166,7 @@ var main = (function() {
       // CHECKBREAK = true;
       // TEXTMODE(OLD_MODE);
       // WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
-    });
+    }).catch(handle_error);
   }
   return main;
 })();
