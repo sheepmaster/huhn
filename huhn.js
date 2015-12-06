@@ -215,7 +215,7 @@ var main = (function() {
     //   } while (!KEYPRESSED());
     // }
     return READKEY().then(function(C) {
-      var f2 = Promises.now();
+      var f2 = Promise.resolve();
       if (C == CHR(0))
         f2 = READKEY();
       return f2.then(function(C) {
@@ -225,7 +225,7 @@ var main = (function() {
   }
 
   function PUT_IN_HIGHSCORE(SCOR, LVL) {
-    var f = Promises.now();
+    var f = Promise.resolve();
     var I, J;
     var NAME;
     var NEWHIGHSCORES = new HIGHSCORE_TYPE();
@@ -491,14 +491,14 @@ var main = (function() {
       INVERSE_OFF();
       WRITE('#');
       return CALIBRATE().then(function() {
-        WRITE(CHR(8), ' ');
+        WRITE(CHR(8) + ' ');
         HUHN.X = (RIGHT + LEFT) / 2;
         HUHN.Y = BOTTOM;
       });
     }
 
     function TOT() {
-      var f = Promises.now();
+      var f = Promise.resolve();
       if (OPTIONS.BEEP) {
         BEEP();
       }
@@ -519,7 +519,7 @@ var main = (function() {
     }
 
     function VORWAERTS_MARSCH() {
-      var f = Promises.now();
+      var f = Promise.resolve();
       var I, P;
       var POWER_RANGERS_MEGA_ZORD_POWER = new Array();
       SPLAT = false;
@@ -682,7 +682,7 @@ var main = (function() {
         }
         return update();
         function update() {
-          var f = Promises.now();
+          var f = Promise.resolve();
           if (HUHN.X < LEFT) {
             HUHN.X++;
           }
@@ -969,7 +969,7 @@ var main = (function() {
       WRITE_TEXT();
       return repeat_until(function() {
         return READKEY().then(function(c) {
-          var f = Promises.now();
+          var f = Promise.resolve();
           C = c;
           WRITE_MENU(POS);
           if (C == CHR(0)) {
@@ -1100,7 +1100,7 @@ var main = (function() {
         INVERSE_OFF();
         return repeat_until(function() {
           return READKEY().then(function(c) {
-            var f = Promises.now();
+            var f = Promise.resolve();
             C = c;
             WRITE_MENU(POS);
             if (C == CHR(0)) {
