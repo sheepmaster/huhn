@@ -1,6 +1,7 @@
 (function() {
 
-  var requestAnimationFrame_ = window.webkitRequestAnimationFrame ||
+  var requestAnimationFrame_ = window.requestAnimationFrame ||
+                               window.webkitRequestAnimationFrame ||
                                window.mozRequestAnimationFrame ||
                                window.msRequestAnimationFrame;
 
