@@ -76,8 +76,8 @@ Terminal.prototype.crtReadKey = function() {
     that.resolvers_.push(resolve);
   });
 };
-Terminal.prototype.crtWrite = function() {
-  this.vt100(Array.prototype.join.call(arguments, ''));
+Terminal.prototype.crtWrite = function(s) {
+  this.vt100(s);
 };
 Terminal.prototype.crtWriteLn = function() {
   this.vt100(Array.prototype.join.call(arguments, '') + '\n');
@@ -140,8 +140,8 @@ function GOTOXY(x, y) {
   terminal.gotoXY(x - 1, y - 1);
 }
 
-function WRITE() {
-  terminal.crtWrite.apply(terminal, arguments);
+function WRITE(s) {
+  terminal.crtWrite(s);
 }
 
 function WRITELN() {

@@ -132,7 +132,7 @@ var main = (function() {
         }
         if ((C == CHR(8)) && (LENGTH(S) > 0)) {
           S = DELETE(S, LENGTH(S), 1);
-          WRITE(CHR(8), ' ', CHR(8));
+          WRITE(CHR(8) + ' ' + CHR(8));
         }
         var f2;
         if (C == CHR(0)) {
@@ -190,7 +190,7 @@ var main = (function() {
     WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
     for (I = 0; I <= MAX_ENTRIES; I++) {
       GOTOXY(22, 9 + I);
-      WRITE(I + 1, '.');
+      WRITE((I + 1) + '.');
       GOTOXY(26, 9 + I);
       WRITE(HIGHSCORES[I].NAME);
       GOTOXY(47, 9 + I);
@@ -458,12 +458,12 @@ var main = (function() {
       HUHN.Y = BOTTOM;
       BONUS = 200 * LEVL;
       GOTOXY(LEFT, TOP - 3);
-      WRITE('Level: ', LEVL);
+      WRITE('Level: ' + LEVL);
       GOTOXY(RIGHT - 4, TOP - 3);
       if (HUEHNER < 10) {
         WRITE(' ');
       }
-      WRITE('#x', HUEHNER, '    ');
+      WRITE('#x' + HUEHNER + '    ');
       GOTOXY(LEFT, BOTTOM + 3);
       WRITE(SCORE);
       GOTOXY(RIGHT - 4, BOTTOM + 3);
@@ -703,7 +703,7 @@ var main = (function() {
               INVERSE_OFF();
               BONUS2 = MAX(BONUS2 - REDUCTION, 0);
               GOTOXY(RIGHT - 4, BOTTOM + 3);
-              WRITE(BONUS2, '     ');
+              WRITE(BONUS2 + '     ');
               if (!START_AGAIN)
                 return step();
               if (!GAME_OVER)
