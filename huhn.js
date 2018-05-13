@@ -124,7 +124,7 @@ var main = (function() {
       for (var i = start; i <= end; i++) {
         accepted_keys[String.fromCharCode(i)] = true;
       }
-      ['\u00C4', '\u00D6', '\u00DC', '\u00E4', '\u00F6', '\u00FC'].forEach(function(c) {
+      ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü'].forEach(function(c) {
         accepted_keys[c] = true;
       });
       if (accepted_keys[C] && (LENGTH(S) < 20)) {
@@ -150,37 +150,37 @@ var main = (function() {
 
   function WRITE_HIGHSCORES(HIGHSCORES) {
     GOTOXY(33, 4);
-    WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+    WRITE('╔════════════╗');
     GOTOXY(20, 5);
-    WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563 Highscores \u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+    WRITE('╔════════════╣ Highscores ╠═══════════╗');
     GOTOXY(20, 6);
-    WRITE('\u2551            \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D           \u2551');
+    WRITE('║            ╚════════════╝           ║');
     GOTOXY(20, 7);
-    WRITE('\u2551 Platz Name             Level Punkte \u2551');
+    WRITE('║ Platz Name             Level Punkte ║');
     GOTOXY(20, 8);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 9);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 10);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 11);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 12);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 13);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 14);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 15);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 16);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 17);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 18);
-    WRITE('\u2551                                     \u2551');
+    WRITE('║                                     ║');
     GOTOXY(20, 19);
-    WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+    WRITE('╚═════════════════════════════════════╝');
     for (I = 0; I <= MAX_ENTRIES; I++) {
       GOTOXY(22, 9 + I);
       WRITE((I + 1), '.');
@@ -197,7 +197,7 @@ var main = (function() {
     var I;
     WRITE_HIGHSCORES(HIGHSCORES);
     INVERSE_ON();
-    CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+    CENTERED(25, '*** Bitte Taste drücken ***');
     SAVE_HIGHSCORES_AND_OPTIONS();
     INVERSE_OFF();
     I = 1;
@@ -233,7 +233,7 @@ var main = (function() {
       INVERSE_OFF();
       WRITE_HIGHSCORES(NEWHIGHSCORES);
       INVERSE_ON();
-      CENTERED(25, 'Bitte geben Sie nun Ihren Namen ein oder dr\u00FCcken sie [Esc], um abzubrechen');
+      CENTERED(25, 'Bitte geben Sie nun Ihren Namen ein oder drücken sie [Esc], um abzubrechen');
       INVERSE_OFF();
       GOTOXY(26, 9 + I);
       WRITE('                    ');
@@ -398,8 +398,8 @@ var main = (function() {
           TURBO_POWER[J - TOP][I - LEFT] = false;
         }
       }
-      CENTERED(1, 'Warum ging das Huhn \u00FCber die Autobahn?');
-      CENTERED(2, '\u00A9 1999 by Bl\u00F6k!Interactive Megatrend Gamesystems');
+      CENTERED(1, 'Warum ging das Huhn über die Autobahn?');
+      CENTERED(2, '© 1999 by Blök!Interactive Megatrend Gamesystems');
       GOTOXY(LEFT, TOP - 2);
       WRITE('================================');
       GOTOXY(LEFT, BOTTOM + 1);
@@ -411,7 +411,7 @@ var main = (function() {
       GOTOXY(RIGHT - 8, BOTTOM + 2);
       WRITE('Bonus II');
       INVERSE_ON();
-      CENTERED(25, 'Warum ging das Huhn \u00FCber die Autobahn?');
+      CENTERED(25, 'Warum ging das Huhn über die Autobahn?');
       INVERSE_OFF();
       RANDOMIZE();
       for (I = 0; I <= MAX_AUTOS; I++) {
@@ -610,7 +610,7 @@ var main = (function() {
               CENTERED(25, '***PAUSE***');
               CH = await READKEY();
               GOTOXY(21, 25);
-              WRITE('Warum ging das Huhn \u00FCber die Autobahn?');
+              WRITE('Warum ging das Huhn über die Autobahn?');
               INVERSE_OFF();
               break;
             case '\x1B':  // #27
@@ -666,29 +666,29 @@ var main = (function() {
   async function INFO() {
     var I;
     GOTOXY(33, 7);
-    WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
+    WRITE(' ╔═════════╗ ');
     GOTOXY(17, 8);
-    WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563 Info... \u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+    WRITE('╔════════════════╣ Info... ╠═════════════════╗');
     GOTOXY(17, 9);
-    WRITE('\u2551                \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D                 \u2551');
+    WRITE('║                ╚═════════╝                 ║');
     GOTOXY(17, 10);
-    WRITE('\u2551   Warum ging das Huhn \u00FCber die Autobahn?   \u2551');
+    WRITE('║   Warum ging das Huhn über die Autobahn?   ║');
     GOTOXY(17, 11);
-    WRITE('\u2551             Version 2.2 f\u00FCr PC             \u2551');
+    WRITE('║             Version 2.2 für PC             ║');
     GOTOXY(17, 12);
-    WRITE('\u2551                                            \u2551');
+    WRITE('║                                            ║');
     GOTOXY(17, 13);
-    WRITE('\u2551               \"Ui, bunt!\" -- Simon Bichler \u2551');
+    WRITE('║               "Ui, bunt!" -- Simon Bichler ║');
     GOTOXY(17, 14);
-    WRITE('\u2551                                            \u2551');
+    WRITE('║                                            ║');
     GOTOXY(17, 15);
-    WRITE('\u2551        (c) 1999 by Bl\u00F6k!Interactive        \u2551');
+    WRITE('║        (c) 1999 by Blök!Interactive        ║');
     GOTOXY(17, 16);
-    WRITE('\u2551            Megatrend Gamesystems           \u2551');
+    WRITE('║            Megatrend Gamesystems           ║');
     GOTOXY(17, 17);
-    WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+    WRITE('╚════════════════════════════════════════════╝');
     INVERSE_ON();
-    CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+    CENTERED(25, '*** Bitte Taste drücken ***');
     INVERSE_OFF();
     I = 999;
     do {
@@ -703,34 +703,21 @@ var main = (function() {
 
   async function EASTER_EGG() {
     var I;
-    GOTOXY(14, 7);
-    WRITE('                    \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
-    GOTOXY(14, 8);
-    WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563 Das Huhn \u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
-    GOTOXY(14, 9);
-    WRITE('\u2551                   \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D                    \u2551');
-    GOTOXY(14, 10);
-    WRITE('\u2551   In der Bahnhofshalle, die nicht f\u00FCr es gebaut,  \u2551');
-    GOTOXY(14, 11);
-    WRITE('\u2551                   geht ein Huhn                   \u2551');
-    GOTOXY(14, 12);
-    WRITE('\u2551                   hin und her...                  \u2551');
-    GOTOXY(14, 13);
-    WRITE('\u2551       Wo, wo ist der Herr Stationsvorsteh\'r?      \u2551');
-    GOTOXY(14, 14);
-    WRITE('\u2551                   Wird dem Huhn                   \u2551');
-    GOTOXY(14, 15);
-    WRITE('\u2551                  man nichts tun?                  \u2551');
-    GOTOXY(14, 16);
-    WRITE('\u2551         Hoffen wir es! Sagen wir es laut:         \u2551');
-    GOTOXY(14, 17);
-    WRITE('\u2551          da\u00DF ihm unsere Sympathie geh\u00F6rt,         \u2551');
-    GOTOXY(14, 18);
-    WRITE('\u2551       selbst an dieser St\u00E4tte, wo es \'st\u00F6rt\'!     \u2551');
-    GOTOXY(14, 19);
-    WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+    GOTOXY(14, 7);  WRITE('                    ╔══════════╗');
+    GOTOXY(14, 8);  WRITE('╔═══════════════════╣ Das Huhn ╠════════════════════╗');
+    GOTOXY(14, 9);  WRITE('║                   ╚══════════╝                    ║');
+    GOTOXY(14, 10); WRITE('║   In der Bahnhofshalle, die nicht für es gebaut,  ║');
+    GOTOXY(14, 11); WRITE('║                   geht ein Huhn                   ║');
+    GOTOXY(14, 12); WRITE('║                   hin und her...                  ║');
+    GOTOXY(14, 13); WRITE('║       Wo, wo ist der Herr Stationsvorsteh\'r?      ║');
+    GOTOXY(14, 14); WRITE('║                   Wird dem Huhn                   ║');
+    GOTOXY(14, 15); WRITE('║                  man nichts tun?                  ║');
+    GOTOXY(14, 16); WRITE('║         Hoffen wir es! Sagen wir es laut:         ║');
+    GOTOXY(14, 17); WRITE('║          daß ihm unsere Sympathie gehört,         ║');
+    GOTOXY(14, 18); WRITE('║       selbst an dieser Stätte, wo es \'stört\'!     ║');
+    GOTOXY(14, 19); WRITE('╚═══════════════════════════════════════════════════╝');
     INVERSE_ON();
-    CENTERED(25, '*** Bitte Taste dr\u00FCcken ***');
+    CENTERED(25, '*** Bitte Taste drücken ***');
     INVERSE_OFF();
     C = await READKEY();
     if (C == CHR(0)) {
@@ -761,12 +748,12 @@ var main = (function() {
         break;
       case 1:
         GOTOXY(30, 10);
-        WRITE(' [ ] Ger\u00E4usche      ');
+        WRITE(' [ ] Geräusche      ');
         GOTOXY(32, 10);
         if (NEW_OPTIONS.BEEP) {
           WRITE('X')
         };
-        CENTERED(25, 'Schaltet die Ger\u00E4uschuntermalung ein und aus');
+        CENTERED(25, 'Schaltet die Geräuschuntermalung ein und aus');
 
         break;
       case 2:
@@ -792,13 +779,13 @@ var main = (function() {
       case 4:
         GOTOXY(31, 19);
         WRITE(' OK ');
-        CENTERED(25, 'Verl\u00E4\u00DFt diesen Dialog und \u00FCbernimmt die Optionen');
+        CENTERED(25, 'Verläßt diesen Dialog und übernimmt die Optionen');
 
         break;
       case 5:
         GOTOXY(39, 19);
         WRITE(' Abbrechen ');
-        CENTERED(25, 'Verl\u00E4\u00DFt diesen Dialog, ohne die Optionen zu \u00FCbernehmen');
+        CENTERED(25, 'Verläßt diesen Dialog, ohne die Optionen zu übernehmen');
 
         break;
       };
@@ -812,9 +799,9 @@ var main = (function() {
         INVERSE_OFF()
       };
       GOTOXY(31, 13);
-      WRITE(' M\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4\u00E4hh! ');
+      WRITE(' Määäääääääääähh! ');
       GOTOXY(31, 14);
-      WRITE(' Bl\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6\u00F6k! ');
+      WRITE(' Blöööööööööööök! ');
       INVERSE_OFF();
     }
 
@@ -864,37 +851,37 @@ var main = (function() {
     do {
       CLRSCR();
       GOTOXY(33, 5);
-      WRITE(' \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557 ');
+      WRITE(' ╔══════════╗ ');
       GOTOXY(28, 6);
-      WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2563 Optionen \u2560\u2550\u2550\u2550\u2550\u2550\u2557');
+      WRITE('╔═════╣ Optionen ╠═════╗');
       GOTOXY(28, 7);
-      WRITE('\u2551     \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D     \u2551');
+      WRITE('║     ╚══════════╝     ║');
       GOTOXY(28, 8);
-      WRITE('\u2560\u2550\u2550\u2550\u2550\u2550\u2550Allgemein\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563');
+      WRITE('╠══════Allgemein═══════╣');
       GOTOXY(28, 9);
-      WRITE('\u2551  [ ] Bunte Autos     \u2551');
+      WRITE('║  [ ] Bunte Autos     ║');
       GOTOXY(28, 10);
-      WRITE('\u2551  [ ] Piepton         \u2551');
+      WRITE('║  [ ] Piepton         ║');
       GOTOXY(28, 11);
-      WRITE('\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550Farben\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563');
+      WRITE('╠════════Farben════════╣');
       GOTOXY(28, 12);
-      WRITE('\u2551                      \u2551');
+      WRITE('║                      ║');
       GOTOXY(28, 13);
-      WRITE('\u2551                      \u2551');
+      WRITE('║                      ║');
       GOTOXY(28, 14);
-      WRITE('\u2551                      \u2551');
+      WRITE('║                      ║');
       GOTOXY(28, 15);
-      WRITE('\u2551                      \u2551');
+      WRITE('║                      ║');
       GOTOXY(28, 16);
-      WRITE('\u2551  Textfarbe..         \u2551');
+      WRITE('║  Textfarbe..         ║');
       GOTOXY(28, 17);
-      WRITE('\u2551  Hintergrundfarbe..  \u2551');
+      WRITE('║  Hintergrundfarbe..  ║');
       GOTOXY(28, 18);
-      WRITE('\u2551                      \u2551');
+      WRITE('║                      ║');
       GOTOXY(28, 19);
-      WRITE('\u2551   OK      Abbrechen  \u2551');
+      WRITE('║   OK      Abbrechen  ║');
       GOTOXY(28, 20);
-      WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+      WRITE('╚══════════════════════╝');
       for (I = 0; I <= 5; I++) {
         WRITE_MENU(I);
       };
@@ -951,7 +938,7 @@ var main = (function() {
     case 0:
       GOTOXY(32, 10);
       WRITELN(' Info...       ');
-      CENTERED(25, 'Informationen \u00FCber dieses bescheuerte Spiel');
+      CENTERED(25, 'Informationen über dieses bescheuerte Spiel');
 
       break;
     case 1:
@@ -998,23 +985,23 @@ var main = (function() {
       INVERSE_OFF();
       CLRSCR();
       GOTOXY(33, 7);
-      WRITE('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+      WRITE('╔═══════════╗');
       GOTOXY(30, 8);
-      WRITE('\u2554\u2550\u2550\u2563 Hauptmen\u00FC \u2560\u2550\u2550\u2557');
+      WRITE('╔══╣ Hauptmenü ╠══╗');
       GOTOXY(30, 9);
-      WRITE('\u2551  \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D  \u2551');
+      WRITE('║  ╚═══════════╝  ║');
       GOTOXY(30, 10);
-      WRITE('\u2551                 \u2551');
+      WRITE('║                 ║');
       GOTOXY(30, 11);
-      WRITE('\u2551                 \u2551');
+      WRITE('║                 ║');
       GOTOXY(30, 12);
-      WRITE('\u2551                 \u2551');
+      WRITE('║                 ║');
       GOTOXY(30, 13);
-      WRITE('\u2551                 \u2551');
+      WRITE('║                 ║');
       GOTOXY(30, 14);
-      WRITE('\u2551                 \u2551');
+      WRITE('║                 ║');
       GOTOXY(30, 15);
-      WRITE('\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D');
+      WRITE('╚═════════════════╝');
       for (I = 0; I <= 4; I++) {
         WRITE_MENU(I);
       }
@@ -1070,11 +1057,11 @@ var main = (function() {
     if (CHANGED) {
       SAVE_HIGHSCORES_AND_OPTIONS();
     }
-    WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
+    WRITE('Danke, daß Sie \'Warum ging das Huhn über die Autobahn\' so lange ertragen haben!');
     CURSOR_ON();
     // CHECKBREAK = true;
     // TEXTMODE(OLD_MODE);
-    // WRITE('Danke, da\u00DF Sie \'Warum ging das Huhn \u00FCber die Autobahn\' so lange ertragen haben!');
+    // WRITE('Danke, daß Sie 'Warum ging das Huhn über die Autobahn' so lange ertragen haben!');
   }
   return main;
 })();
