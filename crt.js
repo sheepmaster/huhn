@@ -71,13 +71,12 @@ Terminal.prototype.crtKeyPressed = function() {
   return this.promises_.length > 0;
 };
 Terminal.prototype.crtReadKey = function() {
-  var that = this;
-  return this.promises_.shift() || new Promise(function(resolve) {
-    that.resolvers_.push(resolve);
+  return this.promises_.shift() || new Promise(resolve => {
+    this.resolvers_.push(resolve);
   });
 };
-Terminal.prototype.crtWrite = function(s) {
-  this.vt100(s);
+Terminal.prototype.crtWrite = function() {
+  this.vt100(Array.prototype.join.call(arguments, ''));
 };
 Terminal.prototype.crtWriteLn = function() {
   this.vt100(Array.prototype.join.call(arguments, '') + '\n');
@@ -140,8 +139,8 @@ function GOTOXY(x, y) {
   terminal.gotoXY(x - 1, y - 1);
 }
 
-function WRITE(s) {
-  terminal.crtWrite(s);
+function WRITE() {
+  terminal.crtWrite.apply(terminal, arguments);
 }
 
 function WRITELN() {
