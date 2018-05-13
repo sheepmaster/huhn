@@ -697,8 +697,7 @@ var main = (function() {
       await Promises.animationFrame();
     } while (!KEYPRESSED());
     C = await READKEY();
-    if (C == CHR(0))
-      await READKEY();
+    if (C == CHR(0)) C = await READKEY();
   }
 
   async function EASTER_EGG() {
@@ -720,9 +719,7 @@ var main = (function() {
     CENTERED(25, '*** Bitte Taste drücken ***');
     INVERSE_OFF();
     C = await READKEY();
-    if (C == CHR(0)) {
-      await READKEY();
-    }
+    if (C == CHR(0)) C = await READKEY();
   }
 
   async function SETUP_OPTIONS() {
@@ -734,14 +731,9 @@ var main = (function() {
       switch (P) {
       case 0:
         GOTOXY(30, 9);
-        if (!COLOR) {
-          LOWVIDEO();
-        };
-        WRITE(' [ ] Bunte Autos    ');
+        if (!COLOR) LOWVIDEO(); WRITE(' [ ] Bunte Autos    ');
         GOTOXY(32, 9);
-        if (NEW_OPTIONS.COLOR) {
-          WRITE('X')
-        };
+        if (NEW_OPTIONS.COLOR) WRITE('X');
         CENTERED(25, 'Schaltet die Option \'Bunte Autos\' ein und aus');
         HIGHVIDEO();
 
@@ -1024,7 +1016,7 @@ var main = (function() {
         INVERSE_ON();
         WRITE_MENU(POS);
         INVERSE_OFF();
-      } while (!(C == CHR(13)) || (C == CHR(27)) || (C == CHR(10)));
+      } while (!((C == CHR(13)) || (C == CHR(27)) || (C == CHR(10))));
       if (C == CHR(27)) {
         OUT = true;
       } else {
